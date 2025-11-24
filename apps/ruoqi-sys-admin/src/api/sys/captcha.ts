@@ -8,9 +8,9 @@ import {
 } from './model/captcha';
 
 enum Api {
-  GetCaptcha = '/sys_api/admin/mfa/captcha',
-  SendEmailCaptcha = '/sys_api/admin/mfa/captcha/email',
-  SendSmsCaptcha = '/sys_api/admin/mfa/captcha/sms',
+  GetCaptcha = '/sys_admin/mfa/captcha',
+  SendEmailCaptcha = '/sys_admin/mfa/captcha/email',
+  SendSmsCaptcha = '/sys_admin/mfa/captcha/sms',
 }
 
 /**
