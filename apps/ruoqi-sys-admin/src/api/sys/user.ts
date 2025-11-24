@@ -37,11 +37,11 @@ enum Api {
   LoginBySms = '/sys_admin/auth/login_by_sms',
   Logout = '/sys_admin/user/logout',
   Profile = '/sys_admin/user/profile',
-  Register = '/sys_admin/user/register',
-  RegisterByEmail = '/sys_admin/user/register_by_email',
-  RegisterBySms = '/sys_admin/user/register_by_sms',
-  ResetPasswordByEmail = '/sys_admin/user/reset_password_by_email',
-  ResetPasswordBySms = '/sys_admin/user/reset_password_by_sms',
+  Register = '/sys_admin/auth/register',
+  RegisterByEmail = '/sys_admin/auth/register_by_email',
+  RegisterBySms = '/sys_admin/auth/register_by_sms',
+  ResetPasswordByEmail = '/sys_admin/auth/reset_password_by_email',
+  ResetPasswordBySms = '/sys_admin/auth/reset_password_by_sms',
   UpdateUser = '/sys_admin/user/update',
 }
 
