@@ -160,14 +160,14 @@ const formSchema = computed((): VbenFormSchema[] => {
       },
       component: 'VbenInput',
       componentProps: {
-        maxlength: 5,
+        maxlength: 4,
         placeholder: $t('sys.login.smsPlaceholder'),
       },
       formItemClass: 'col-span-1 items-baseline',
       rules: z
         .string()
-        .length(5, { message: $t('sys.login.captchaRequired') })
-        .max(5),
+        .length(4, { message: $t('sys.login.captchaRequired') })
+        .max(4),
     },
     {
       fieldName: 'captchaImg',
@@ -200,7 +200,7 @@ const formSchema = computed((): VbenFormSchema[] => {
             : $t('authentication.sendCode');
         },
         placeholder: $t('authentication.code'),
-        codeLength: 5,
+        codeLength: 4,
         handleSendCode: handleSendCaptcha,
       },
       dependencies: {
@@ -214,8 +214,8 @@ const formSchema = computed((): VbenFormSchema[] => {
       label: $t('authentication.code'),
       rules: z
         .string()
-        .length(5, { message: $t('sys.login.captchaRequired') })
-        .max(5),
+        .length(4, { message: $t('sys.login.captchaRequired') })
+        .max(4),
       formItemClass: 'col-span-2 items-baseline',
     },
   ];

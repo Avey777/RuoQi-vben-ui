@@ -92,15 +92,15 @@ const formSchema: VbenFormSchema[] = [
           : $t('authentication.sendCode');
       },
       placeholder: $t('authentication.code'),
-      codeLength: 5,
+      codeLength: 4,
       handleSendCode: handleSendCaptcha,
     },
     fieldName: 'captchaVerified',
     label: $t('authentication.code'),
     rules: z
       .string()
-      .length(5, { message: $t('sys.login.captchaRequired') })
-      .max(5),
+      .length(4, { message: $t('sys.login.captchaRequired') })
+      .max(4),
     formItemClass: 'col-span-2 items-baseline',
   },
   {
