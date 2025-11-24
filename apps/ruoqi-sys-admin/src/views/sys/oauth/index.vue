@@ -164,13 +164,13 @@ async function batchDelete(ids: any[]) {
           type="primary"
           @click="handleBatchDelete"
         >
-          {{ $t('common.delete') }}
+          {{ $t('common.delete') }}  <!-- 删除 -->
         </Button>
       </template>
 
       <template #toolbar-tools>
         <Button type="primary" @click="openFormModal">
-          {{ $t('sys.oauth.addProvider') }}
+          {{ $t('sys.oauth.addProvider') }}  <!-- 添加第三方 -->
         </Button>
       </template>
     </Grid>
