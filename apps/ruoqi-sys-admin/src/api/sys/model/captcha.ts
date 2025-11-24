@@ -1,6 +1,6 @@
 export interface CaptchaResp {
-  captcha_token: string;
-  captcha_image: string;
+  captchaToken: string;
+  captchaImage: string;
 }
 
 export interface GetEmailCaptchaReq {
