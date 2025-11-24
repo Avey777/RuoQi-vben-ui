@@ -1,7 +1,7 @@
 import { type BaseListResp } from '../../model/baseModel';
 
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description: file info response
  */
 export interface fileInfo {
@@ -16,14 +16,14 @@ export interface fileInfo {
 }
 
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description: file list response
  */
 
 export type FileListResp = BaseListResp<fileInfo>;
 
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description: change status request
  */
 export interface changeStatusReq {
@@ -32,7 +32,7 @@ export interface changeStatusReq {
 }
 
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description: update file info request
  */
 export interface updateFileInfoReq {

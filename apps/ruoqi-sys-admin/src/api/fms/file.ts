@@ -38,7 +38,7 @@ export const getFileList = (params: BaseListReq) => {
 };
 
 /**
- *  author: ryan
+ *  author: DoDo
  *  @description: update file info
  */
 export const updateFileInfo = (params: updateFileInfoReq) => {
@@ -46,7 +46,7 @@ export const updateFileInfo = (params: updateFileInfoReq) => {
 };
 
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description: delete files
  */
 export const deleteFile = (params: BaseUUIDsReq) => {
@@ -54,14 +54,14 @@ export const deleteFile = (params: BaseUUIDsReq) => {
 };
 
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description: set file's status
  */
 export const setFileStatus = (id: string, status: number) =>
   requestClient.post(Api.SetFileStatus, { id, status });
 
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description: download file
  */
 

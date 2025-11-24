@@ -17,7 +17,7 @@ export interface RouteItem {
 }
 
 /**
- *  author: ryan
+ *  author: DoDo
  *  @description: Get menu by page
  */
 export interface MenuPageResp {
@@ -55,7 +55,7 @@ export interface MenuInfoPlain {
 }
 
 /**
- *  author: ryan
+ *  author: DoDo
  *  @description: menu list response model
  */
 export type MenuPlainListResp = BaseListResp<MenuInfoPlain>;

@@ -1,5 +1,5 @@
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description:
  */
 
@@ -11,7 +11,7 @@ export interface MenuAuthorityInfo {
 }
 
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description: this interface is used to get the api list for authorization
  */
 
@@ -30,7 +30,7 @@ export interface ApiAuthorityInfo {
 }
 
 /**
- *  author: Ryan Su
+ *  author: DoDo Su
  *  @description:
  */
 
