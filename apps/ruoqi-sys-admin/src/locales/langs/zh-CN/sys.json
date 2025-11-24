@@ -86,7 +86,7 @@
     "diffPwd": "两次输入密码不一致",
     "accountMaxLength": "账号最长为30位",
     "passwordLength": "密码长度为6-30位",
-    "captchaRequired": "请输入5位验证码",
+    "captchaRequired": "请输入4位验证码",
     "username": "用户名",
     "password": "密码",
     "confirmPassword": "确认密码",

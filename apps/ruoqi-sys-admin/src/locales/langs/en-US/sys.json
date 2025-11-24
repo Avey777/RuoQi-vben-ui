@@ -86,7 +86,7 @@
     "diffPwd": "The two passwords are inconsistent",
     "accountMaxLength": "Account length should be up to 30 characters",
     "passwordLength": "Password length should be between 6 and 30 characters",
-    "captchaRequired": "Please enter a 5-digit captcha",
+    "captchaRequired": "Please enter a 4-digit captcha",
     "username": "Username",
     "password": "Password",
     "confirmPassword": "Confirm Password",
