@@ -13,11 +13,11 @@ import {
 } from './model/departmentModel';
 
 enum Api {
-  CreateDepartment = '/sys-api/department/create',
-  DeleteDepartment = '/sys-api/department/delete',
-  GetDepartmentById = '/sys-api/department',
-  GetDepartmentList = '/sys-api/department/list',
-  UpdateDepartment = '/sys-api/department/update',
+  CreateDepartment = '/sys-admin/department/create',
+  DeleteDepartment = '/sys-admin/department/delete',
+  GetDepartmentById = '/sys-admin/department',
+  GetDepartmentList = '/sys-admin/department/list',
+  UpdateDepartment = '/sys-admin/department/update',
 }
 
 /**

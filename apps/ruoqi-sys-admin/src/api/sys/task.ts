@@ -10,11 +10,11 @@ import { requestClient } from '#/api/request';
 import { type TaskInfo, type TaskListResp } from './model/taskModel';
 
 enum Api {
-  CreateTask = '/sys-api/task/create',
-  DeleteTask = '/sys-api/task/delete',
-  GetTaskById = '/sys-api/task',
-  GetTaskList = '/sys-api/task/list',
-  UpdateTask = '/sys-api/task/update',
+  CreateTask = '/sys-admin/task/create',
+  DeleteTask = '/sys-admin/task/delete',
+  GetTaskById = '/sys-admin/task',
+  GetTaskList = '/sys-admin/task/list',
+  UpdateTask = '/sys-admin/task/update',
 }
 
 /**

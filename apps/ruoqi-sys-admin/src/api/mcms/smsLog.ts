@@ -10,11 +10,11 @@ import { requestClient } from '#/api/request';
 import { type SmsLogInfo, type SmsLogListResp } from './model/smsLogModel';
 
 enum Api {
-  CreateSmsLog = '/sys-api/sms_log/create',
-  DeleteSmsLog = '/sys-api/sms_log/delete',
-  GetSmsLogById = '/sys-api/sms_log',
-  GetSmsLogList = '/sys-api/sms_log/list',
-  UpdateSmsLog = '/sys-api/sms_log/update',
+  CreateSmsLog = '/sys-admin/sms_log/create',
+  DeleteSmsLog = '/sys-admin/sms_log/delete',
+  GetSmsLogById = '/sys-admin/sms_log',
+  GetSmsLogList = '/sys-admin/sms_log/list',
+  UpdateSmsLog = '/sys-admin/sms_log/update',
 }
 
 /**

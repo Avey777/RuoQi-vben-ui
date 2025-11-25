@@ -31,9 +31,9 @@ export default defineConfig(async () => {
           //   target: 'http://localhost:5320/api',
           //   ws: true,
           // },
-          // '/sys-api': {
+          // '/sys-admin': {
           //   changeOrigin: true,
-          //   rewrite: (path) => path.replace(/^\/sys-api/, ''),
+          //   rewrite: (path) => path.replace(/^\/sys-admin/, ''),
           //   target: 'http://localhost:9100/',
           //   ws: true,
           // },

@@ -17,13 +17,13 @@ import {
 } from './model/oauthProviderModel';
 
 enum Api {
-  CreateOauthProvider = '/sys-api/oauth_provider/create',
-  DeleteOauthProvider = '/sys-api/oauth_provider/delete',
-  GetOauthProviderById = '/sys-api/oauth_provider',
-  GetOauthProviderList = '/sys-api/oauth_provider/list',
-  OauthLogin = '/sys-api/oauth/login',
-  OauthLoginCallback = '/sys-api/oauth/login/callback',
-  UpdateOauthProvider = '/sys-api/oauth_provider/update',
+  CreateOauthProvider = '/sys-admin/oauth_provider/create',
+  DeleteOauthProvider = '/sys-admin/oauth_provider/delete',
+  GetOauthProviderById = '/sys-admin/oauth_provider',
+  GetOauthProviderList = '/sys-admin/oauth_provider/list',
+  OauthLogin = '/sys-admin/oauth/login',
+  OauthLoginCallback = '/sys-admin/oauth/login/callback',
+  UpdateOauthProvider = '/sys-admin/oauth_provider/update',
 }
 
 /**

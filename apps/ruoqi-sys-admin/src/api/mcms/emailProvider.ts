@@ -13,11 +13,11 @@ import {
 } from './model/emailProviderModel';
 
 enum Api {
-  CreateEmailProvider = '/sys-api/email_provider/create',
-  DeleteEmailProvider = '/sys-api/email_provider/delete',
-  GetEmailProviderById = '/sys-api/email_provider',
-  GetEmailProviderList = '/sys-api/email_provider/list',
-  UpdateEmailProvider = '/sys-api/email_provider/update',
+  CreateEmailProvider = '/sys-admin/email_provider/create',
+  DeleteEmailProvider = '/sys-admin/email_provider/delete',
+  GetEmailProviderById = '/sys-admin/email_provider',
+  GetEmailProviderList = '/sys-admin/email_provider/list',
+  UpdateEmailProvider = '/sys-admin/email_provider/update',
 }
 
 /**

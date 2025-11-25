@@ -10,11 +10,11 @@ import { requestClient } from '#/api/request';
 import { type ApiInfo, type ApiListResp } from './model/apiModel';
 
 enum Api {
-  CreateApi = '/sys-api/api/create',
-  DeleteApi = '/sys-api/api/delete',
-  GetApiById = '/sys-api/api',
-  GetApiList = '/sys-api/api/list',
-  UpdateApi = '/sys-api/api/update',
+  CreateApi = '/sys-admin/api/create',
+  DeleteApi = '/sys-admin/api/delete',
+  GetApiById = '/sys-admin/api',
+  GetApiList = '/sys-admin/api/list',
+  UpdateApi = '/sys-admin/api/update',
 }
 
 /**

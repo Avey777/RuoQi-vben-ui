@@ -13,11 +13,11 @@ import {
 } from './model/positionModel';
 
 enum Api {
-  CreatePosition = '/sys-api/position/create',
-  DeletePosition = '/sys-api/position/delete',
-  GetPositionById = '/sys-api/position',
-  GetPositionList = '/sys-api/position/list',
-  UpdatePosition = '/sys-api/position/update',
+  CreatePosition = '/sys-admin/position/create',
+  DeletePosition = '/sys-admin/position/delete',
+  GetPositionById = '/sys-admin/position',
+  GetPositionList = '/sys-admin/position/list',
+  UpdatePosition = '/sys-admin/position/update',
 }
 
 /**

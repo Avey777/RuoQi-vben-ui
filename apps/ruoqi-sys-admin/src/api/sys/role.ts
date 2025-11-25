@@ -10,11 +10,11 @@ import { requestClient } from '#/api/request';
 import { type RoleInfo, type RoleListResp } from './model/roleModel';
 
 enum Api {
-  CreateRole = '/sys-api/role/create',
-  DeleteRole = '/sys-api/role/delete',
-  GetRoleById = '/sys-api/role',
-  GetRoleList = '/sys-api/role/list',
-  UpdateRole = '/sys-api/role/update',
+  CreateRole = '/sys-admin/role/create',
+  DeleteRole = '/sys-admin/role/delete',
+  GetRoleById = '/sys-admin/role',
+  GetRoleList = '/sys-admin/role/list',
+  UpdateRole = '/sys-admin/role/update',
 }
 
 /**

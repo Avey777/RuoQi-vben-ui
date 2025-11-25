@@ -14,12 +14,12 @@ import {
 } from './model/dictionaryDetailModel';
 
 enum Api {
-  CreateDictionaryDetail = '/sys-api/dictionary_detail/create',
-  DeleteDictionaryDetail = '/sys-api/dictionary_detail/delete',
-  GetDictionaryDetailByDictionaryName = '/sys-api/dict',
-  GetDictionaryDetailById = '/sys-api/dictionary_detail',
-  GetDictionaryDetailList = '/sys-api/dictionary_detail/list',
-  UpdateDictionaryDetail = '/sys-api/dictionary_detail/update',
+  CreateDictionaryDetail = '/sys-admin/dictionary_detail/create',
+  DeleteDictionaryDetail = '/sys-admin/dictionary_detail/delete',
+  GetDictionaryDetailByDictionaryName = '/sys-admin/dict',
+  GetDictionaryDetailById = '/sys-admin/dictionary_detail',
+  GetDictionaryDetailList = '/sys-admin/dictionary_detail/list',
+  UpdateDictionaryDetail = '/sys-admin/dictionary_detail/update',
 }
 
 /**

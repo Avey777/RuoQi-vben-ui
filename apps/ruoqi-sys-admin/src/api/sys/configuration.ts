@@ -13,12 +13,12 @@ import {
 } from './model/configurationModel';
 
 enum Api {
-  CreateConfiguration = '/sys-api/configuration/create',
-  DeleteConfiguration = '/sys-api/configuration/delete',
-  GetConfigurationById = '/sys-api/configuration',
-  GetConfigurationList = '/sys-api/configuration/list',
-  GetPublicSystemConfigurationList = '/sys-api/configuration/system/list',
-  UpdateConfiguration = '/sys-api/configuration/update',
+  CreateConfiguration = '/sys-admin/configuration/create',
+  DeleteConfiguration = '/sys-admin/configuration/delete',
+  GetConfigurationById = '/sys-admin/configuration',
+  GetConfigurationList = '/sys-admin/configuration/list',
+  GetPublicSystemConfigurationList = '/sys-admin/configuration/system/list',
+  UpdateConfiguration = '/sys-admin/configuration/update',
 }
 
 /**

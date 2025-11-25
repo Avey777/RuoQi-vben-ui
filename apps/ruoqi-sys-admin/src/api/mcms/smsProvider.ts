@@ -13,11 +13,11 @@ import {
 } from './model/smsProviderModel';
 
 enum Api {
-  CreateSmsProvider = '/sys-api/sms_provider/create',
-  DeleteSmsProvider = '/sys-api/sms_provider/delete',
-  GetSmsProviderById = '/sys-api/sms_provider',
-  GetSmsProviderList = '/sys-api/sms_provider/list',
-  UpdateSmsProvider = '/sys-api/sms_provider/update',
+  CreateSmsProvider = '/sys-admin/sms_provider/create',
+  DeleteSmsProvider = '/sys-admin/sms_provider/delete',
+  GetSmsProviderById = '/sys-admin/sms_provider',
+  GetSmsProviderList = '/sys-admin/sms_provider/list',
+  UpdateSmsProvider = '/sys-admin/sms_provider/update',
 }
 
 /**

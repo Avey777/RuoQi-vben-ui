@@ -12,12 +12,12 @@ import {
 } from './model/menuModel';
 
 enum Api {
-  CreateMenu = '/sys-api/menu/create',
-  DeleteMenu = '/sys-api/menu/delete',
-  GetMenuById = '/sys-api/menu',
-  GetMenuList = '/sys-api/menu/list',
-  GetMenuListByRole = '/sys-api/menu/role/list',
-  UpdateMenu = '/sys-api/menu/update',
+  CreateMenu = '/sys-admin/menu/create',
+  DeleteMenu = '/sys-admin/menu/delete',
+  GetMenuById = '/sys-admin/menu',
+  GetMenuList = '/sys-admin/menu/list',
+  GetMenuListByRole = '/sys-admin/menu/role/list',
+  UpdateMenu = '/sys-admin/menu/update',
 }
 
 /**

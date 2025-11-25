@@ -2,9 +2,9 @@ import { type BaseResp } from '#/api/model/baseModel';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  InitializeDatabase = '/sys-api/core/init/database',
-  InitializeJobDatabase = '/sys-api/core/init/job_database',
-  InitializeMcmsDatabase = '/sys-api/core/init/mcms_database',
+  InitializeDatabase = '/sys-admin/core/init/database',
+  InitializeJobDatabase = '/sys-admin/core/init/job_database',
+  InitializeMcmsDatabase = '/sys-admin/core/init/mcms_database',
 }
 
 /**

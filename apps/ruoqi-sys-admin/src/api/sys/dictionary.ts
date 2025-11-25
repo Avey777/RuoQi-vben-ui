@@ -13,11 +13,11 @@ import {
 } from './model/dictionaryModel';
 
 enum Api {
-  CreateDictionary = '/sys-api/dictionary/create',
-  DeleteDictionary = '/sys-api/dictionary/delete',
-  GetDictionaryById = '/sys-api/dictionary',
-  GetDictionaryList = '/sys-api/dictionary/list',
-  UpdateDictionary = '/sys-api/dictionary/update',
+  CreateDictionary = '/sys-admin/dictionary/create',
+  DeleteDictionary = '/sys-admin/dictionary/delete',
+  GetDictionaryById = '/sys-admin/dictionary',
+  GetDictionaryList = '/sys-admin/dictionary/list',
+  UpdateDictionary = '/sys-admin/dictionary/update',
 }
 
 /**

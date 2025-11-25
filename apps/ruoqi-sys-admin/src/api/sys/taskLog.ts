@@ -10,11 +10,11 @@ import { requestClient } from '#/api/request';
 import { type TaskLogInfo, type TaskLogListResp } from './model/taskLogModel';
 
 enum Api {
-  CreateTaskLog = '/sys-api/task_log/create',
-  DeleteTaskLog = '/sys-api/task_log/delete',
-  GetTaskLogById = '/sys-api/task_log',
-  GetTaskLogList = '/sys-api/task_log/list',
-  UpdateTaskLog = '/sys-api/task_log/update',
+  CreateTaskLog = '/sys-admin/task_log/create',
+  DeleteTaskLog = '/sys-admin/task_log/delete',
+  GetTaskLogById = '/sys-admin/task_log',
+  GetTaskLogList = '/sys-admin/task_log/list',
+  UpdateTaskLog = '/sys-admin/task_log/update',
 }
 
 /**

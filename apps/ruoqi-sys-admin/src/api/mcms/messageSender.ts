@@ -4,8 +4,8 @@ import { requestClient } from '#/api/request';
 import { type SendEmailReq, type SendSmsReq } from './model/messageModel';
 
 enum Api {
-  SendEmail = '/sys-api/email/send',
-  SendSms = '/sys-api/sms/send',
+  SendEmail = '/sys-admin/email/send',
+  SendSms = '/sys-admin/sms/send',
 }
 
 /**

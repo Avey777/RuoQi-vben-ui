@@ -10,12 +10,12 @@ import { requestClient } from '#/api/request';
 import { type TokenInfo, type TokenListResp } from './model/tokenModel';
 
 enum Api {
-  CreateToken = '/sys-api/token/create',
-  DeleteToken = '/sys-api/token/delete',
-  GetTokenById = '/sys-api/token',
-  GetTokenList = '/sys-api/token/list',
-  Logout = '/sys-api/token/logout',
-  UpdateToken = '/sys-api/token/update',
+  CreateToken = '/sys-admin/token/create',
+  DeleteToken = '/sys-admin/token/delete',
+  GetTokenById = '/sys-admin/token',
+  GetTokenList = '/sys-admin/token/list',
+  Logout = '/sys-admin/token/logout',
+  UpdateToken = '/sys-admin/token/update',
 }
 
 /**

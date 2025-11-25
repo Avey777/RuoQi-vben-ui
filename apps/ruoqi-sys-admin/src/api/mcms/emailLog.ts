@@ -13,11 +13,11 @@ import {
 } from './model/emailLogModel';
 
 enum Api {
-  CreateEmailLog = '/sys-api/email_log/create',
-  DeleteEmailLog = '/sys-api/email_log/delete',
-  GetEmailLogById = '/sys-api/email_log',
-  GetEmailLogList = '/sys-api/email_log/list',
-  UpdateEmailLog = '/sys-api/email_log/update',
+  CreateEmailLog = '/sys-admin/email_log/create',
+  DeleteEmailLog = '/sys-admin/email_log/delete',
+  GetEmailLogById = '/sys-admin/email_log',
+  GetEmailLogList = '/sys-admin/email_log/list',
+  UpdateEmailLog = '/sys-admin/email_log/update',
 }
 
 /**
