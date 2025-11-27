@@ -1,23 +1,20 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseResp,
-} from '#/api/model/baseModel';
-import { requestClient } from '#/api/request';
-
-import {
-  type MenuInfoPlain,
-  type MenuPlainListResp,
-  type RoleMenuResp,
+import type {
+  MenuInfoPlain,
+  MenuPlainListResp,
+  RoleMenuResp,
 } from './model/menuModel';
 
+import type { BaseDataResp, BaseIDReq, BaseResp } from '#/api/model/baseModel';
+
+import { requestClient } from '#/api/request';
+
 enum Api {
-  CreateMenu = '/sys-admin/menu/create',
-  DeleteMenu = '/sys-admin/menu/delete',
-  GetMenuById = '/sys-admin/menu',
-  GetMenuList = '/sys-admin/menu/list',
-  GetMenuListByRole = '/sys-admin/menu/role/list',
-  UpdateMenu = '/sys-admin/menu/update',
+  CreateMenu = '/sys_admin/menu/create',
+  DeleteMenu = '/sys_admin/menu/delete',
+  GetMenuById = '/sys_admin/menu',
+  GetMenuList = '/sys_admin/menu/list',
+  GetMenuListByRole = '/sys_admin/menu/role/list',
+  UpdateMenu = '/sys_admin/menu/update',
 }
 
 /**

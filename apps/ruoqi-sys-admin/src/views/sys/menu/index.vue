@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { VxeGridProps } from '#/adapter/vxe-table';
+import type { ActionItem } from '#/components/table/table-action';
 
 import { h } from 'vue';
 
@@ -11,7 +12,7 @@ import { isPlainObject } from 'remeda';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { deleteMenu, getMenuList } from '#/api/sys/menu';
-import { type ActionItem, TableAction } from '#/components/table/table-action';
+import { TableAction } from '#/components/table/table-action';
 
 import MenuForm from './form.vue';
 import { tableColumns } from './schemas';
@@ -105,7 +106,7 @@ function openFormModal(record: any) {
 
 async function batchDelete(ids: any) {
   const result = await deleteMenu({
-    id: ids[0],
+    id: ids[0].toString(),
   });
   if (result.code === 0) {
     await gridApi.reload();

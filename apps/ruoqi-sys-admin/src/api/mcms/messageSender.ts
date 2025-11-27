@@ -1,11 +1,12 @@
-import { type BaseResp } from '#/api/model/baseModel';
+import type { SendEmailReq, SendSmsReq } from './model/messageModel';
+
+import type { BaseResp } from '#/api/model/baseModel';
+
 import { requestClient } from '#/api/request';
 
-import { type SendEmailReq, type SendSmsReq } from './model/messageModel';
-
 enum Api {
-  SendEmail = '/sys-admin/email/send',
-  SendSms = '/sys-admin/sms/send',
+  SendEmail = '/sys_admin/email/send',
+  SendSms = '/sys_admin/sms/send',
 }
 
 /**

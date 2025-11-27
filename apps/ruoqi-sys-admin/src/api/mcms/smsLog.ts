@@ -1,20 +1,21 @@
-import {
-  type BaseDataResp,
-  type BaseListReq,
-  type BaseResp,
-  type BaseUUIDReq,
-  type BaseUUIDsReq,
+import type { SmsLogInfo, SmsLogListResp } from './model/smsLogModel';
+
+import type {
+  BaseDataResp,
+  BaseListReq,
+  BaseResp,
+  BaseUUIDReq,
+  BaseUUIDsReq,
 } from '#/api/model/baseModel';
+
 import { requestClient } from '#/api/request';
 
-import { type SmsLogInfo, type SmsLogListResp } from './model/smsLogModel';
-
 enum Api {
-  CreateSmsLog = '/sys-admin/sms_log/create',
-  DeleteSmsLog = '/sys-admin/sms_log/delete',
-  GetSmsLogById = '/sys-admin/sms_log',
-  GetSmsLogList = '/sys-admin/sms_log/list',
-  UpdateSmsLog = '/sys-admin/sms_log/update',
+  CreateSmsLog = '/sys_admin/sms_log/create',
+  DeleteSmsLog = '/sys_admin/sms_log/delete',
+  GetSmsLogById = '/sys_admin/sms_log',
+  GetSmsLogList = '/sys_admin/sms_log/list',
+  UpdateSmsLog = '/sys_admin/sms_log/update',
 }
 
 /**

@@ -1,20 +1,21 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseListReq,
-  type BaseResp,
+import type { RoleInfo, RoleListResp } from './model/roleModel';
+
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseListReq,
+  BaseResp,
 } from '#/api/model/baseModel';
+
 import { requestClient } from '#/api/request';
 
-import { type RoleInfo, type RoleListResp } from './model/roleModel';
-
 enum Api {
-  CreateRole = '/sys-admin/role/create',
-  DeleteRole = '/sys-admin/role/delete',
-  GetRoleById = '/sys-admin/role',
-  GetRoleList = '/sys-admin/role/list',
-  UpdateRole = '/sys-admin/role/update',
+  CreateRole = '/sys_admin/role/create',
+  DeleteRole = '/sys_admin/role/delete',
+  GetRoleById = '/sys_admin/role',
+  GetRoleList = '/sys_admin/role/list',
+  UpdateRole = '/sys_admin/role/update',
 }
 
 /**

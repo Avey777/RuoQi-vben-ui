@@ -1,13 +1,17 @@
-import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { VbenFormProps } from '@vben/common-ui';
+
+import type { VxeGridProps } from '#/adapter/vxe-table';
+
+import { h } from 'vue';
+
+import { $t } from '@vben/locales';
+
+import { Icon } from '@iconify/vue';
+import { Tag } from 'ant-design-vue';
 
 import { z } from '#/adapter/form';
 import { getMenuList } from '#/api/sys/menu';
 import { ParentIdEnum } from '#/enums/common';
-import { Icon } from '@iconify/vue';
-import { $t } from '@vben/locales';
-import { Tag } from 'ant-design-vue';
-import { h } from 'vue';
 
 export const tableColumns: VxeGridProps = {
   columns: [
@@ -137,13 +141,13 @@ export const dataFormSchemas: VbenFormProps = {
         labelField: 'trans',
         valueField: 'id',
         defaultValue: {
-          id: ParentIdEnum.DEFAULT,
+          id: ParentIdEnum.DEFAULT.toString(),
           parentId: -1,
           label: $t('sys.menu.rootMenu'),
-          value: ParentIdEnum.DEFAULT,
+          value: ParentIdEnum.DEFAULT.toString(),
         },
       },
-      defaultValue: ParentIdEnum.DEFAULT,
+      defaultValue: ParentIdEnum.DEFAULT.toString(),
     },
     {
       fieldName: 'icon',
