@@ -1,10 +1,10 @@
-import { type BaseListResp } from '../../model/baseModel';
+import type { BaseListResp } from '../../model/baseModel';
 
 /**
  *  @description: Configuration info response
  */
 export interface ConfigurationInfo {
-  id?: number;
+  id?: string;
   createdAt?: number;
   updatedAt?: number;
   sort?: number;
