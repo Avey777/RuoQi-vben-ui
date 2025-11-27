@@ -1,29 +1,29 @@
-import type { LoginResp } from '#/api/sys/model/userModel';
-
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseListReq,
-  type BaseResp,
-} from '#/api/model/baseModel';
-import { requestClient } from '#/api/request';
-
-import {
-  type OauthLoginReq,
-  type OauthProviderInfo,
-  type OauthProviderListResp,
-  type RedirectResp,
+import type {
+  OauthLoginReq,
+  OauthProviderInfo,
+  OauthProviderListResp,
+  RedirectResp,
 } from './model/oauthProviderModel';
 
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseListReq,
+  BaseResp,
+} from '#/api/model/baseModel';
+import type { LoginResp } from '#/api/sys/model/userModel';
+
+import { requestClient } from '#/api/request';
+
 enum Api {
-  CreateOauthProvider = '/sys-admin/oauth_provider/create',
-  DeleteOauthProvider = '/sys-admin/oauth_provider/delete',
-  GetOauthProviderById = '/sys-admin/oauth_provider',
-  GetOauthProviderList = '/sys-admin/oauth_provider/list',
-  OauthLogin = '/sys-admin/oauth/login',
-  OauthLoginCallback = '/sys-admin/oauth/login/callback',
-  UpdateOauthProvider = '/sys-admin/oauth_provider/update',
+  CreateOauthProvider = '/sys_admin/oauth_provider/create',
+  DeleteOauthProvider = '/sys_admin/oauth_provider/delete',
+  GetOauthProviderById = '/sys_admin/oauth_provider',
+  GetOauthProviderList = '/sys_admin/oauth_provider/list',
+  OauthLogin = '/sys_admin/oauth/login',
+  OauthLoginCallback = '/sys_admin/oauth/login/callback',
+  UpdateOauthProvider = '/sys_admin/oauth_provider/update',
 }
 
 /**

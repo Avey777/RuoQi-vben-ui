@@ -1,23 +1,21 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseListReq,
-  type BaseResp,
+import type { PositionInfo, PositionListResp } from './model/positionModel';
+
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseListReq,
+  BaseResp,
 } from '#/api/model/baseModel';
+
 import { requestClient } from '#/api/request';
 
-import {
-  type PositionInfo,
-  type PositionListResp,
-} from './model/positionModel';
-
 enum Api {
-  CreatePosition = '/sys-admin/position/create',
-  DeletePosition = '/sys-admin/position/delete',
-  GetPositionById = '/sys-admin/position',
-  GetPositionList = '/sys-admin/position/list',
-  UpdatePosition = '/sys-admin/position/update',
+  CreatePosition = '/sys_admin/position/create',
+  DeletePosition = '/sys_admin/position/delete',
+  GetPositionById = '/sys_admin/position',
+  GetPositionList = '/sys_admin/position/list',
+  UpdatePosition = '/sys_admin/position/update',
 }
 
 /**

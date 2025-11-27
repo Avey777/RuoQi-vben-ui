@@ -1,10 +1,11 @@
-import { type BaseResp } from '#/api/model/baseModel';
+import type { BaseResp } from '#/api/model/baseModel';
+
 import { requestClient } from '#/api/request';
 
 enum Api {
-  InitializeDatabase = '/sys-admin/core/init/database',
-  InitializeJobDatabase = '/sys-admin/core/init/job_database',
-  InitializeMcmsDatabase = '/sys-admin/core/init/mcms_database',
+  InitializeDatabase = '/sys_admin/core/init/database',
+  InitializeJobDatabase = '/sys_admin/core/init/job_database',
+  InitializeMcmsDatabase = '/sys_admin/core/init/mcms_database',
 }
 
 /**

@@ -9,7 +9,7 @@ export default defineConfig(async () => {
           '/sys_admin': {
             changeOrigin: true,
             rewrite: (path) => path.replace(/^\/sys_admin/, ''),
-            target: 'http://localhost:9009/sys_admin/',
+            target: 'http://192.168.2.67:9009/sys_admin/',
             ws: true,
           },
           // '/fms-api': {
@@ -33,7 +33,7 @@ export default defineConfig(async () => {
           // },
           // '/sys-admin': {
           //   changeOrigin: true,
-          //   rewrite: (path) => path.replace(/^\/sys-admin/, ''),
+          //   rewrite: (path) => path.replace(/^\/sys_admin/, ''),
           //   target: 'http://localhost:9100/',
           //   ws: true,
           // },

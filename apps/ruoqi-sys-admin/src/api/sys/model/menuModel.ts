@@ -1,10 +1,10 @@
 import type { RouteMeta } from 'vue-router';
 
-import { type BaseListResp } from '../../model/baseModel';
+import type { BaseListResp } from '../../model/baseModel';
 
 export interface RouteItem {
-  id?: number;
-  parentId?: number;
+  id?: string;
+  parentId?: string;
   path: string;
   component: any;
   meta: RouteMeta;
@@ -26,10 +26,10 @@ export interface MenuPageResp {
 }
 
 export interface MenuInfoPlain {
-  id?: number;
+  id?: string;
   type?: number;
   trans?: string;
-  parentId?: number;
+  parentId?: string;
   path?: string;
   name?: string;
   redirect?: string;

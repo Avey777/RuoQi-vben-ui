@@ -1,25 +1,21 @@
-import type { ApiListResp } from '#/api/sys/model/apiModel';
-
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseResp,
-} from '#/api/model/baseModel';
-import { requestClient } from '#/api/request';
-
-import {
-  type ApiAuthorityReq,
-  type ApiAuthorityResp,
-  type ApiListReq,
-  type MenuAuthorityInfo,
+import type {
+  ApiAuthorityReq,
+  ApiAuthorityResp,
+  ApiListReq,
+  MenuAuthorityInfo,
 } from './model/authorityModel';
 
+import type { BaseDataResp, BaseIDReq, BaseResp } from '#/api/model/baseModel';
+import type { ApiListResp } from '#/api/sys/model/apiModel';
+
+import { requestClient } from '#/api/request';
+
 enum Api {
-  CreateOrUpdateApiAuthority = '/sys-admin/authority/api/create_or_update',
-  CreateOrUpdateMenuAuthority = '/sys-admin/authority/menu/create_or_update',
-  GetApiList = '/sys-admin/api/list',
-  GetRoleApiList = '/sys-admin/authority/api/role',
-  GetRoleMenuList = '/sys-admin/authority/menu/role',
+  CreateOrUpdateApiAuthority = '/sys_admin/authority/api/create_or_update',
+  CreateOrUpdateMenuAuthority = '/sys_admin/authority/menu/create_or_update',
+  GetApiList = '/sys_admin/api/list',
+  GetRoleApiList = '/sys_admin/authority/api/role',
+  GetRoleMenuList = '/sys_admin/authority/menu/role',
 }
 
 /**

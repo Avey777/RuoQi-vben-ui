@@ -1,20 +1,21 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseListReq,
-  type BaseResp,
+import type { ApiInfo, ApiListResp } from './model/apiModel';
+
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseListReq,
+  BaseResp,
 } from '#/api/model/baseModel';
+
 import { requestClient } from '#/api/request';
 
-import { type ApiInfo, type ApiListResp } from './model/apiModel';
-
 enum Api {
-  CreateApi = '/sys-admin/api/create',
-  DeleteApi = '/sys-admin/api/delete',
-  GetApiById = '/sys-admin/api',
-  GetApiList = '/sys-admin/api/list',
-  UpdateApi = '/sys-admin/api/update',
+  CreateApi = '/sys_admin/api/create',
+  DeleteApi = '/sys_admin/api/delete',
+  GetApiById = '/sys_admin/api',
+  GetApiList = '/sys_admin/api/list',
+  UpdateApi = '/sys_admin/api/update',
 }
 
 /**

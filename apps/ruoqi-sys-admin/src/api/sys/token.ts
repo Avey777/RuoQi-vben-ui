@@ -1,21 +1,22 @@
-import {
-  type BaseDataResp,
-  type BaseListReq,
-  type BaseResp,
-  type BaseUUIDReq,
-  type BaseUUIDsReq,
+import type { TokenInfo, TokenListResp } from './model/tokenModel';
+
+import type {
+  BaseDataResp,
+  BaseListReq,
+  BaseResp,
+  BaseUUIDReq,
+  BaseUUIDsReq,
 } from '#/api/model/baseModel';
+
 import { requestClient } from '#/api/request';
 
-import { type TokenInfo, type TokenListResp } from './model/tokenModel';
-
 enum Api {
-  CreateToken = '/sys-admin/token/create',
-  DeleteToken = '/sys-admin/token/delete',
-  GetTokenById = '/sys-admin/token',
-  GetTokenList = '/sys-admin/token/list',
-  Logout = '/sys-admin/token/logout',
-  UpdateToken = '/sys-admin/token/update',
+  CreateToken = '/sys_admin/token/create',
+  DeleteToken = '/sys_admin/token/delete',
+  GetTokenById = '/sys_admin/token',
+  GetTokenList = '/sys_admin/token/list',
+  Logout = '/sys_admin/token/logout',
+  UpdateToken = '/sys_admin/token/update',
 }
 
 /**

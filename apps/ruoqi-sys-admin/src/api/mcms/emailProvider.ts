@@ -1,23 +1,24 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseListReq,
-  type BaseResp,
-} from '#/api/model/baseModel';
-import { requestClient } from '#/api/request';
-
-import {
-  type EmailProviderInfo,
-  type EmailProviderListResp,
+import type {
+  EmailProviderInfo,
+  EmailProviderListResp,
 } from './model/emailProviderModel';
 
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseListReq,
+  BaseResp,
+} from '#/api/model/baseModel';
+
+import { requestClient } from '#/api/request';
+
 enum Api {
-  CreateEmailProvider = '/sys-admin/email_provider/create',
-  DeleteEmailProvider = '/sys-admin/email_provider/delete',
-  GetEmailProviderById = '/sys-admin/email_provider',
-  GetEmailProviderList = '/sys-admin/email_provider/list',
-  UpdateEmailProvider = '/sys-admin/email_provider/update',
+  CreateEmailProvider = '/sys_admin/email_provider/create',
+  DeleteEmailProvider = '/sys_admin/email_provider/delete',
+  GetEmailProviderById = '/sys_admin/email_provider',
+  GetEmailProviderList = '/sys_admin/email_provider/list',
+  UpdateEmailProvider = '/sys_admin/email_provider/update',
 }
 
 /**

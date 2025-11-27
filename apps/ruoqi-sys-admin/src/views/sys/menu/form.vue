@@ -1,12 +1,15 @@
 <script lang="ts" setup>
 import type { MenuInfoPlain } from '#/api/sys/model/menuModel';
 
-import { useVbenForm } from '#/adapter/form';
-import { createMenu, updateMenu } from '#/api/sys/menu';
+import { ref } from 'vue';
+
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
+
 import { message } from 'ant-design-vue';
-import { ref } from 'vue';
+
+import { useVbenForm } from '#/adapter/form';
+import { createMenu, updateMenu } from '#/api/sys/menu';
 
 import { dataFormSchemas } from './schemas';
 
@@ -19,7 +22,7 @@ const isUpdate = ref(false);
 const gridApi = ref();
 
 async function onSubmit(values: Record<string, any>) {
-  values.id = isUpdate.value ? values.id : 0;
+  values.id = isUpdate.value ? values.id : undefined;
   if (values.menuType === 2) {
     values.hideMenu = true;
   }

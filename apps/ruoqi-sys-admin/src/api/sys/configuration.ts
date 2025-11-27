@@ -1,24 +1,25 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseResp,
-} from '#/api/model/baseModel';
-import { requestClient } from '#/api/request';
-
-import {
-  type ConfigurationInfo,
-  type ConfigurationListReq,
-  type ConfigurationListResp,
+import type {
+  ConfigurationInfo,
+  ConfigurationListReq,
+  ConfigurationListResp,
 } from './model/configurationModel';
 
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseResp,
+} from '#/api/model/baseModel';
+
+import { requestClient } from '#/api/request';
+
 enum Api {
-  CreateConfiguration = '/sys-admin/configuration/create',
-  DeleteConfiguration = '/sys-admin/configuration/delete',
-  GetConfigurationById = '/sys-admin/configuration',
-  GetConfigurationList = '/sys-admin/configuration/list',
-  GetPublicSystemConfigurationList = '/sys-admin/configuration/system/list',
-  UpdateConfiguration = '/sys-admin/configuration/update',
+  CreateConfiguration = '/sys_admin/configuration/create',
+  DeleteConfiguration = '/sys_admin/configuration/delete',
+  GetConfigurationById = '/sys_admin/configuration',
+  GetConfigurationList = '/sys_admin/configuration/list',
+  GetPublicSystemConfigurationList = '/sys_admin/configuration/system/list',
+  UpdateConfiguration = '/sys_admin/configuration/update',
 }
 
 /**

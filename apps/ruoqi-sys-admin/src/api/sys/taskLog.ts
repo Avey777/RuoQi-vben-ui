@@ -1,20 +1,21 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseListReq,
-  type BaseResp,
+import type { TaskLogInfo, TaskLogListResp } from './model/taskLogModel';
+
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseListReq,
+  BaseResp,
 } from '#/api/model/baseModel';
+
 import { requestClient } from '#/api/request';
 
-import { type TaskLogInfo, type TaskLogListResp } from './model/taskLogModel';
-
 enum Api {
-  CreateTaskLog = '/sys-admin/task_log/create',
-  DeleteTaskLog = '/sys-admin/task_log/delete',
-  GetTaskLogById = '/sys-admin/task_log',
-  GetTaskLogList = '/sys-admin/task_log/list',
-  UpdateTaskLog = '/sys-admin/task_log/update',
+  CreateTaskLog = '/sys_admin/task_log/create',
+  DeleteTaskLog = '/sys_admin/task_log/delete',
+  GetTaskLogById = '/sys_admin/task_log',
+  GetTaskLogList = '/sys_admin/task_log/list',
+  UpdateTaskLog = '/sys_admin/task_log/update',
 }
 
 /**

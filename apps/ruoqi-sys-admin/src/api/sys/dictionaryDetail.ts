@@ -1,25 +1,26 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseListReq,
-  type BaseResp,
-} from '#/api/model/baseModel';
-import { requestClient } from '#/api/request';
-
-import {
-  type DictionaryDetailInfo,
-  type DictionaryDetailListResp,
-  type DictionaryNameReq,
+import type {
+  DictionaryDetailInfo,
+  DictionaryDetailListResp,
+  DictionaryNameReq,
 } from './model/dictionaryDetailModel';
 
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseListReq,
+  BaseResp,
+} from '#/api/model/baseModel';
+
+import { requestClient } from '#/api/request';
+
 enum Api {
-  CreateDictionaryDetail = '/sys-admin/dictionary_detail/create',
-  DeleteDictionaryDetail = '/sys-admin/dictionary_detail/delete',
-  GetDictionaryDetailByDictionaryName = '/sys-admin/dict',
-  GetDictionaryDetailById = '/sys-admin/dictionary_detail',
-  GetDictionaryDetailList = '/sys-admin/dictionary_detail/list',
-  UpdateDictionaryDetail = '/sys-admin/dictionary_detail/update',
+  CreateDictionaryDetail = '/sys_admin/dictionary_detail/create',
+  DeleteDictionaryDetail = '/sys_admin/dictionary_detail/delete',
+  GetDictionaryDetailByDictionaryName = '/sys_admin/dict',
+  GetDictionaryDetailById = '/sys_admin/dictionary_detail',
+  GetDictionaryDetailList = '/sys_admin/dictionary_detail/list',
+  UpdateDictionaryDetail = '/sys_admin/dictionary_detail/update',
 }
 
 /**

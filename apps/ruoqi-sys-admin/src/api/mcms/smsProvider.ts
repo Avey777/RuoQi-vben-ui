@@ -1,23 +1,24 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseListReq,
-  type BaseResp,
-} from '#/api/model/baseModel';
-import { requestClient } from '#/api/request';
-
-import {
-  type SmsProviderInfo,
-  type SmsProviderListResp,
+import type {
+  SmsProviderInfo,
+  SmsProviderListResp,
 } from './model/smsProviderModel';
 
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseListReq,
+  BaseResp,
+} from '#/api/model/baseModel';
+
+import { requestClient } from '#/api/request';
+
 enum Api {
-  CreateSmsProvider = '/sys-admin/sms_provider/create',
-  DeleteSmsProvider = '/sys-admin/sms_provider/delete',
-  GetSmsProviderById = '/sys-admin/sms_provider',
-  GetSmsProviderList = '/sys-admin/sms_provider/list',
-  UpdateSmsProvider = '/sys-admin/sms_provider/update',
+  CreateSmsProvider = '/sys_admin/sms_provider/create',
+  DeleteSmsProvider = '/sys_admin/sms_provider/delete',
+  GetSmsProviderById = '/sys_admin/sms_provider',
+  GetSmsProviderList = '/sys_admin/sms_provider/list',
+  UpdateSmsProvider = '/sys_admin/sms_provider/update',
 }
 
 /**

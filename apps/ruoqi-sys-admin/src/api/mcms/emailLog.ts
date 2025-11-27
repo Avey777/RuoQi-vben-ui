@@ -1,23 +1,21 @@
-import {
-  type BaseDataResp,
-  type BaseListReq,
-  type BaseResp,
-  type BaseUUIDReq,
-  type BaseUUIDsReq,
+import type { EmailLogInfo, EmailLogListResp } from './model/emailLogModel';
+
+import type {
+  BaseDataResp,
+  BaseListReq,
+  BaseResp,
+  BaseUUIDReq,
+  BaseUUIDsReq,
 } from '#/api/model/baseModel';
+
 import { requestClient } from '#/api/request';
 
-import {
-  type EmailLogInfo,
-  type EmailLogListResp,
-} from './model/emailLogModel';
-
 enum Api {
-  CreateEmailLog = '/sys-admin/email_log/create',
-  DeleteEmailLog = '/sys-admin/email_log/delete',
-  GetEmailLogById = '/sys-admin/email_log',
-  GetEmailLogList = '/sys-admin/email_log/list',
-  UpdateEmailLog = '/sys-admin/email_log/update',
+  CreateEmailLog = '/sys_admin/email_log/create',
+  DeleteEmailLog = '/sys_admin/email_log/delete',
+  GetEmailLogById = '/sys_admin/email_log',
+  GetEmailLogList = '/sys_admin/email_log/list',
+  UpdateEmailLog = '/sys_admin/email_log/update',
 }
 
 /**

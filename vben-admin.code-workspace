@@ -5,8 +5,8 @@
       "path": "apps/backend-mock",
     },
     {
-      "name": "@vben/sys-admin-core",
-      "path": "apps/sys-admin",
+      "name": "@vben/ruoqi-sys-admin",
+      "path": "apps/ruoqi-sys-admin",
     },
     {
       "name": "@vben/web-antd",

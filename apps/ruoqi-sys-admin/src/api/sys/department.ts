@@ -1,23 +1,24 @@
-import {
-  type BaseDataResp,
-  type BaseIDReq,
-  type BaseIDsReq,
-  type BaseListReq,
-  type BaseResp,
-} from '#/api/model/baseModel';
-import { requestClient } from '#/api/request';
-
-import {
-  type DepartmentInfo,
-  type DepartmentListResp,
+import type {
+  DepartmentInfo,
+  DepartmentListResp,
 } from './model/departmentModel';
 
+import type {
+  BaseDataResp,
+  BaseIDReq,
+  BaseIDsReq,
+  BaseListReq,
+  BaseResp,
+} from '#/api/model/baseModel';
+
+import { requestClient } from '#/api/request';
+
 enum Api {
-  CreateDepartment = '/sys-admin/department/create',
-  DeleteDepartment = '/sys-admin/department/delete',
-  GetDepartmentById = '/sys-admin/department',
-  GetDepartmentList = '/sys-admin/department/list',
-  UpdateDepartment = '/sys-admin/department/update',
+  CreateDepartment = '/sys_admin/department/create',
+  DeleteDepartment = '/sys_admin/department/delete',
+  GetDepartmentById = '/sys_admin/department',
+  GetDepartmentList = '/sys_admin/department/list',
+  UpdateDepartment = '/sys_admin/department/update',
 }
 
 /**
