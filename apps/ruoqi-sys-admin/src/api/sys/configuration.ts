@@ -18,7 +18,7 @@ enum Api {
   DeleteConfiguration = '/sys_admin/configuration/delete',
   GetConfigurationById = '/sys_admin/configuration',
   GetConfigurationList = '/sys_admin/configuration/list',
-  GetPublicSystemConfigurationList = '/sys_admin/configuration/system/list',
+  GetPublicSystemConfigurationList = '/sys_admin/auth/system/list',
   UpdateConfiguration = '/sys_admin/configuration/update',
 }
 
