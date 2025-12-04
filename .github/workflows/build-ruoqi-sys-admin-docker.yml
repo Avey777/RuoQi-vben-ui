@@ -6,6 +6,9 @@ on:
     paths:
       - 'apps/ruoqi-sys-admin/**'
       - 'scripts/ruoqi-sys-admin-build/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
   workflow_dispatch: # 允许手动触发
 
 env:
@@ -30,15 +33,19 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: '**/pnpm-lock.yaml'
 
-      - name: Verify pnpm installation
+      - name: Install pnpm via corepack
         run: |
-          echo "=== 验证 pnpm 安装 ==="
+          echo "=== 安装 pnpm ==="
+          # 启用 corepack（Node.js 16+ 内置的包管理器管理器）
+          corepack enable
+
+          # 安装 pnpm
+          corepack prepare pnpm@latest --activate
+
           echo "pnpm 版本:"
           pnpm --version
           echo "Node 版本:"
           node --version
-          echo "npm 版本:"
-          npm --version
 
       - name: Run build script
         run: |
@@ -79,6 +86,8 @@ jobs:
 
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "date=${DATE}" >> $GITHUB_OUTPUT
+          echo "sha_short=${SHORT_SHA}" >> $GITHUB_OUTPUT
 
       - name: Push to Docker Hub
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -111,8 +120,16 @@ jobs:
             # 使用 push-multi.sh 推送多个标签
             ./push-multi.sh
           else
-            # 使用 push.sh 推送单个标签
+            # 使用 push.sh 推送多个标签
+            # 推送三个标签：latest、版本标签、日期提交标签
+            echo "推送标签: latest"
+            ./push.sh latest
+
+            echo "推送标签: ${{ steps.version.outputs.tag }}"
             ./push.sh "${{ steps.version.outputs.tag }}"
+
+            echo "推送标签: v${{ steps.version.outputs.version }}"
+            ./push.sh "v${{ steps.version.outputs.version }}"
           fi
 
       - name: Create build summary
@@ -124,8 +141,8 @@ jobs:
           if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "### 📦 Docker 镜像" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
             echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:latest\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
             echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:v${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### 🔗 相关链接" >> $GITHUB_STEP_SUMMARY
@@ -145,6 +162,8 @@ jobs:
           echo "- **提交:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
           echo "- **触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **工作流:** [${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **构建时间:** ${{ steps.version.outputs.date }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **标签:** ${{ steps.version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload build logs
         if: always()
