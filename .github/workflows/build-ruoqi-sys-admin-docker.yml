@@ -23,20 +23,41 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js and pnpm
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g corepack@latest && corepack enable pnpm
+      - name: Install and setup pnpm
+        run: |
+          echo "=== 安装和设置 pnpm ==="
+          # 安装 corepack 并启用 pnpm
+          npm install -g corepack@latest
+          corepack enable
+
+          # 准备并激活 pnpm
+          corepack prepare pnpm@latest --activate
+
+          # 验证 pnpm 安装
+          echo "pnpm 版本:"
+          pnpm --version
 
       - name: Run build script
         run: |
           echo "=== 运行构建脚本 ==="
           cd scripts/ruoqi-sys-admin-build
-          chmod +x build.sh
+
+          # 确保脚本有执行权限
+          chmod +x build.sh || true
+
+          # 检查脚本是否存在
+          if [ ! -f "build.sh" ]; then
+            echo "错误: build.sh 脚本不存在"
+            exit 1
+          fi
+
+          # 运行构建脚本（只构建不运行容器）
           ./build.sh --no-run  # 只构建，不运行容器
 
       - name: Generate version tag
@@ -45,10 +66,9 @@ jobs:
           echo "=== 生成版本标签 ==="
 
           # 获取版本号
+          VERSION="1.0.0"
           if [ -f "./apps/ruoqi-sys-admin/package.json" ]; then
-            VERSION=$(node -p "require('./apps/ruoqi-sys-admin/package.json').version || '1.0.0'")
-          else
-            VERSION="1.0.0"
+            VERSION=$(node -p "require('./apps/ruoqi-sys-admin/package.json').version || '1.0.0'" 2>/dev/null || echo "1.0.0")
           fi
 
           SHORT_SHA=${GITHUB_SHA::8}
@@ -71,18 +91,32 @@ jobs:
 
           # 检查推送脚本是否存在
           if [ ! -f "push-multi.sh" ]; then
-            echo "错误: push-multi.sh 脚本不存在"
-            exit 1
+            echo "错误: push-multi.sh 脚本不存在，尝试使用 push.sh"
+            if [ ! -f "push.sh" ]; then
+              echo "错误: push.sh 脚本也不存在"
+              exit 1
+            fi
+            PUSH_SCRIPT="push.sh"
+          else
+            PUSH_SCRIPT="push-multi.sh"
           fi
 
-          chmod +x push-multi.sh
+          chmod +x "$PUSH_SCRIPT"
 
           # 设置环境变量
           export DOCKER_HUB_USERNAME="${{ env.DOCKER_HUB_USERNAME }}"
           export DOCKER_HUB_ACCESS_TOKEN="${{ env.DOCKER_HUB_ACCESS_TOKEN }}"
 
+          echo "使用推送脚本: $PUSH_SCRIPT"
+
           # 运行推送脚本
-          ./push-multi.sh
+          if [ "$PUSH_SCRIPT" = "push-multi.sh" ]; then
+            # 使用 push-multi.sh 推送多个标签
+            ./push-multi.sh
+          else
+            # 使用 push.sh 推送单个标签
+            ./push.sh "${{ steps.version.outputs.tag }}"
+          fi
 
       - name: Create build summary
         if: success()
@@ -144,6 +178,7 @@ jobs:
               echo "📦 镜像已推送到 Docker Hub:"
               echo "  - ${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:latest"
               echo "  - ${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ needs.build.outputs.tag }}"
+              echo "  - ${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:v${{ needs.build.outputs.version }}"
               echo ""
               echo "🔗 查看镜像:"
               echo "  https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin/tags"
