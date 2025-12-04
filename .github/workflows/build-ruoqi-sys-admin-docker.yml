@@ -9,6 +9,7 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - '.node-version' # 新增：监控.node-version文件变化
   workflow_dispatch: # 允许手动触发
 
 env:
@@ -26,26 +27,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js with pnpm
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
-          cache-dependency-path: '**/pnpm-lock.yaml'
-
-      - name: Install pnpm via corepack
-        run: |
-          echo "=== 安装 pnpm ==="
-          # 启用 corepack（Node.js 16+ 内置的包管理器管理器）
-          corepack enable
-
-          # 安装 pnpm
-          corepack prepare pnpm@latest --activate
-
-          echo "pnpm 版本:"
-          pnpm --version
-          echo "Node 版本:"
-          node --version
+      - name: Setup Node and pnpm
+        uses: ./.github/actions/setup-node # 使用你的自定义Action
 
       - name: Run build script
         run: |
@@ -54,6 +37,7 @@ jobs:
 
           # 确保脚本有执行权限
           chmod +x build.sh || true
+          chmod +x push.sh || true
 
           # 检查脚本是否存在
           if [ ! -f "build.sh" ]; then
@@ -89,48 +73,32 @@ jobs:
           echo "date=${DATE}" >> $GITHUB_OUTPUT
           echo "sha_short=${SHORT_SHA}" >> $GITHUB_OUTPUT
 
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
+
       - name: Push to Docker Hub
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: |
           echo "=== 推送镜像到 Docker Hub ==="
           cd scripts/ruoqi-sys-admin-build
 
-          # 检查推送脚本是否存在
-          if [ ! -f "push-multi.sh" ]; then
-            echo "错误: push-multi.sh 脚本不存在，尝试使用 push.sh"
-            if [ ! -f "push.sh" ]; then
-              echo "错误: push.sh 脚本也不存在"
-              exit 1
-            fi
-            PUSH_SCRIPT="push.sh"
-          else
-            PUSH_SCRIPT="push-multi.sh"
-          fi
-
-          chmod +x "$PUSH_SCRIPT"
-
           # 设置环境变量
           export DOCKER_HUB_USERNAME="${{ env.DOCKER_HUB_USERNAME }}"
           export DOCKER_HUB_ACCESS_TOKEN="${{ env.DOCKER_HUB_ACCESS_TOKEN }}"
 
-          echo "使用推送脚本: $PUSH_SCRIPT"
+          # 推送多个标签
+          echo "推送标签: latest"
+          ./push.sh latest
 
-          # 运行推送脚本
-          if [ "$PUSH_SCRIPT" = "push-multi.sh" ]; then
-            # 使用 push-multi.sh 推送多个标签
-            ./push-multi.sh
-          else
-            # 使用 push.sh 推送多个标签
-            # 推送三个标签：latest、版本标签、日期提交标签
-            echo "推送标签: latest"
-            ./push.sh latest
+          echo "推送标签: ${{ steps.version.outputs.tag }}"
+          ./push.sh "${{ steps.version.outputs.tag }}"
 
-            echo "推送标签: ${{ steps.version.outputs.tag }}"
-            ./push.sh "${{ steps.version.outputs.tag }}"
-
-            echo "推送标签: v${{ steps.version.outputs.version }}"
-            ./push.sh "v${{ steps.version.outputs.version }}"
-          fi
+          echo "推送标签: v${{ steps.version.outputs.version }}"
+          ./push.sh "v${{ steps.version.outputs.version }}"
 
       - name: Create build summary
         if: success()
