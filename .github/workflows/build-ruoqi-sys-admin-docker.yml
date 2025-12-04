@@ -1,0 +1,250 @@
+name: Build and Push Ruoqi Sys Admin Docker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/ruoqi-sys-admin/**'
+      - 'scripts/ruoqi-sys-admin-build/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/ruoqi-sys-admin/**'
+      - 'scripts/ruoqi-sys-admin-build/**'
+      - 'package.json'
+  workflow_dispatch: # 允许手动触发
+    inputs:
+      tag_suffix:
+        description: 'Docker tag suffix (optional)'
+        required: false
+        default: ''
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: ruoqi-sys-admin
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:master
+            network=host
+
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g corepack@latest && corepack enable pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure build environment
+        run: |
+          # 确保环境文件存在并配置
+          mkdir -p ./apps/ruoqi-sys-admin
+          if [ ! -f "./apps/ruoqi-sys-admin/.env.production" ]; then
+            echo "VITE_COMPRESS = gzip" > ./apps/ruoqi-sys-admin/.env.production
+            echo "VITE_PWA = true" >> ./apps/ruoqi-sys-admin/.env.production
+            echo "VITE_PUBLIC_PATH = /" >> ./apps/ruoqi-sys-admin/.env.production
+          fi
+
+          # 更新生产环境配置
+          sed -i "s#VITE_COMPRESS\s*=.*#VITE_COMPRESS = gzip#g" ./apps/ruoqi-sys-admin/.env.production || true
+          sed -i "s#VITE_PWA\s*=.*#VITE_PWA = true#g" ./apps/ruoqi-sys-admin/.env.production || true
+
+          echo "Production environment configuration:"
+          cat ./apps/ruoqi-sys-admin/.env.production
+
+      - name: Build ruoqi-sys-admin
+        run: |
+          echo "Building ruoqi-sys-admin project..."
+          # 优先使用项目定义的构建命令
+          if grep -q '"build:ruoqi"' package.json; then
+            pnpm run build:ruoqi
+          elif grep -q '"build:sys-admin"' package.json; then
+            pnpm run build:sys-admin
+          else
+            # 使用 pnpm filter 构建特定项目
+            pnpm run build --filter=./apps/ruoqi-sys-admin
+          fi
+
+          echo "Build output:"
+          ls -la ./apps/ruoqi-sys-admin/dist/
+
+      - name: Generate version tag
+        id: version
+        run: |
+          # 获取版本号
+          if [ -f "./apps/ruoqi-sys-admin/package.json" ]; then
+            VERSION=$(node -p "require('./apps/ruoqi-sys-admin/package.json').version || '1.0.0'")
+          else
+            VERSION="1.0.0"
+          fi
+
+          SHORT_SHA=${GITHUB_SHA::8}
+          DATE=$(date +'%Y%m%d')
+
+          # 如果是手动触发，使用输入的标签后缀
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag_suffix }}" ]; then
+            TAG_SUFFIX="-${{ github.event.inputs.tag_suffix }}"
+          else
+            TAG_SUFFIX=""
+          fi
+
+          # 生成完整的标签
+          FULL_TAG="v${VERSION}-${DATE}-${SHORT_SHA}${TAG_SUFFIX}"
+
+          echo "Version: ${VERSION}"
+          echo "Commit SHA: ${SHORT_SHA}"
+          echo "Date: ${DATE}"
+          echo "Full tag: ${FULL_TAG}"
+
+          echo "tag=${FULL_TAG}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./scripts/ruoqi-sys-admin-build/Dockerfile
+          push: false # 先不推送，用于 PR
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:build-${{ github.run_number }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=docker,dest=/tmp/image.tar
+
+      - name: Test Docker image
+        run: |
+          # 加载并测试镜像
+          docker load --input /tmp/image.tar
+          docker run --rm \
+            --name ruoqi-test \
+            -p 8081:8081 \
+            ${{ env.REGISTRY }}/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:build-${{ github.run_number }} &
+
+          sleep 5
+
+          # 检查容器是否运行
+          if docker ps | grep -q ruoqi-test; then
+            echo "✅ Docker container is running"
+            # 停止测试容器
+            docker stop ruoqi-test
+          else
+            echo "❌ Docker container failed to start"
+            exit 1
+          fi
+
+      - name: Push Docker image (on main branch)
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./scripts/ruoqi-sys-admin-build/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:v${{ steps.version.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.created=${{ steps.meta.outputs.created }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+
+      - name: Deploy to staging (optional)
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          DEPLOY_HOST: ${{ secrets.STAGING_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.STAGING_DEPLOY_USER }}
+          DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+        run: |
+          echo "Deploying to staging environment..."
+          # 这里可以添加部署到 staging 环境的逻辑
+          echo "Image: ${{ env.REGISTRY }}/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.tag }}"
+
+      - name: Update deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "🎉 Build and push completed successfully!"
+            echo "📦 Image: ${{ env.REGISTRY }}/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.tag }}"
+            echo "🐳 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}/tags"
+          else
+            echo "❌ Build failed!"
+            exit 1
+          fi
+
+  # 可选：添加安全检查
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.REGISTRY }}/${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.version }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
