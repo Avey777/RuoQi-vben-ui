@@ -23,25 +23,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Setup Node.js with pnpm
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
 
-      - name: Install and setup pnpm
+      - name: Verify pnpm installation
         run: |
-          echo "=== 安装和设置 pnpm ==="
-          # 安装 corepack 并启用 pnpm
-          npm install -g corepack@latest
-          corepack enable
-
-          # 准备并激活 pnpm
-          corepack prepare pnpm@latest --activate
-
-          # 验证 pnpm 安装
+          echo "=== 验证 pnpm 安装 ==="
           echo "pnpm 版本:"
           pnpm --version
+          echo "Node 版本:"
+          node --version
+          echo "npm 版本:"
+          npm --version
 
       - name: Run build script
         run: |
