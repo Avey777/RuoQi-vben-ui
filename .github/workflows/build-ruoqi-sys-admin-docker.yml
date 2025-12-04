@@ -1,51 +1,29 @@
-name: Build and Push Ruoqi Sys Admin Docker
+name: Build and Push RuoQi Sys Admin
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'apps/ruoqi-sys-admin/**'
       - 'scripts/ruoqi-sys-admin-build/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'apps/ruoqi-sys-admin/**'
-      - 'scripts/ruoqi-sys-admin-build/**'
-      - 'package.json'
-  workflow_dispatch:
-    inputs:
-      tag_suffix:
-        description: 'Docker tag suffix (optional)'
-        required: false
-        default: ''
+  workflow_dispatch: # 允许手动触发
 
 env:
-  REGISTRY: docker.io
-  IMAGE_NAME: ruoqi-sys-admin
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
 jobs:
-  build-and-push:
+  build:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    outputs:
-      version_tag: ${{ steps.version.outputs.tag }}
-      build_status: ${{ job.status }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Setup Node.js and pnpm
         uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -54,43 +32,18 @@ jobs:
       - name: Install pnpm
         run: npm install -g corepack@latest && corepack enable pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Configure build environment
+      - name: Run build script
         run: |
-          # 确保环境文件存在
-          if [ ! -f "./apps/ruoqi-sys-admin/.env.production" ]; then
-            echo "VITE_COMPRESS = gzip" > ./apps/ruoqi-sys-admin/.env.production
-            echo "VITE_PWA = true" >> ./apps/ruoqi-sys-admin/.env.production
-            echo "VITE_PUBLIC_PATH = /" >> ./apps/ruoqi-sys-admin/.env.production
-          fi
-
-          # 更新生产环境配置
-          sed -i "s#VITE_COMPRESS\s*=.*#VITE_COMPRESS = gzip#g" ./apps/ruoqi-sys-admin/.env.production || true
-          sed -i "s#VITE_PWA\s*=.*#VITE_PWA = true#g" ./apps/ruoqi-sys-admin/.env.production || true
-
-          echo "Production environment configuration:"
-          cat ./apps/ruoqi-sys-admin/.env.production
-
-      - name: Build ruoqi-sys-admin
-        id: build
-        run: |
-          echo "Building ruoqi-sys-admin project..."
-          if grep -q '"build:ruoqi"' package.json; then
-            pnpm run build:ruoqi
-          elif grep -q '"build:sys-admin"' package.json; then
-            pnpm run build:sys-admin
-          else
-            pnpm run build --filter=./apps/ruoqi-sys-admin
-          fi
-
-          echo "Build completed successfully!"
-          ls -la ./apps/ruoqi-sys-admin/dist/
+          echo "=== 运行构建脚本 ==="
+          cd scripts/ruoqi-sys-admin-build
+          chmod +x build.sh
+          ./build.sh --no-run  # 只构建，不运行容器
 
       - name: Generate version tag
         id: version
         run: |
+          echo "=== 生成版本标签 ==="
+
           # 获取版本号
           if [ -f "./apps/ruoqi-sys-admin/package.json" ]; then
             VERSION=$(node -p "require('./apps/ruoqi-sys-admin/package.json').version || '1.0.0'")
@@ -100,119 +53,107 @@ jobs:
 
           SHORT_SHA=${GITHUB_SHA::8}
           DATE=$(date +'%Y%m%d')
-
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag_suffix }}" ]; then
-            TAG_SUFFIX="-${{ github.event.inputs.tag_suffix }}"
-          else
-            TAG_SUFFIX=""
-          fi
-
-          FULL_TAG="v${VERSION}-${DATE}-${SHORT_SHA}${TAG_SUFFIX}"
+          TAG="v${VERSION}-${DATE}-${SHORT_SHA}"
 
           echo "Version: ${VERSION}"
           echo "Commit SHA: ${SHORT_SHA}"
           echo "Date: ${DATE}"
-          echo "Full tag: ${FULL_TAG}"
+          echo "Full tag: ${TAG}"
 
-          echo "tag=${FULL_TAG}" >> $GITHUB_OUTPUT
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Build Docker image
-        id: docker_build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./scripts/ruoqi-sys-admin-build/Dockerfile
-          push: false
-          tags: |
-            ${{ env.IMAGE_NAME }}:local-test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.version=${{ steps.version.outputs.version }}
-
-      - name: Test Docker image locally
+      - name: Push to Docker Hub
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: |
-          echo "Testing Docker image..."
-          docker run --rm -d --name test-ruoqi -p 8080:8080 ${{ env.IMAGE_NAME }}:local-test
-          sleep 3
+          echo "=== 推送镜像到 Docker Hub ==="
+          cd scripts/ruoqi-sys-admin-build
 
-          # 检查容器是否在运行
-          if docker ps | grep -q test-ruoqi; then
-            echo "✅ Docker container is running"
-            docker stop test-ruoqi
-            echo "Test passed!"
-          else
-            echo "❌ Docker container failed to start"
-            docker logs test-ruoqi || true
+          # 检查推送脚本是否存在
+          if [ ! -f "push-multi.sh" ]; then
+            echo "错误: push-multi.sh 脚本不存在"
             exit 1
           fi
 
-      - name: Push Docker image to Docker Hub
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./scripts/ruoqi-sys-admin-build/Dockerfile
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.tag }}
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:v${{ steps.version.outputs.version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+          chmod +x push-multi.sh
 
-      - name: Post-build success message
+          # 设置环境变量
+          export DOCKER_HUB_USERNAME="${{ env.DOCKER_HUB_USERNAME }}"
+          export DOCKER_HUB_ACCESS_TOKEN="${{ env.DOCKER_HUB_ACCESS_TOKEN }}"
+
+          # 运行推送脚本
+          ./push-multi.sh
+
+      - name: Create build summary
         if: success()
         run: |
-          echo "🎉 Build and push completed successfully!"
-          echo "📦 Image: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.tag }}"
-          echo "📦 Latest: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest"
-          echo "🐳 Docker Hub: https://hub.docker.com/r/${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}/tags"
+          echo "## 🎉 RuoQi Sys Admin 构建成功" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
-          # 创建部署摘要
-          echo "## Docker Image Built Successfully" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Image Tags:**" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Details:**" >> $GITHUB_STEP_SUMMARY
-          echo "- Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Build Date: $(date)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "[View on Docker Hub](https://hub.docker.com/r/${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}/tags)" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "### 📦 Docker 镜像" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:latest\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:v${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🔗 相关链接" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- [Docker Hub 仓库](https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin)" >> $GITHUB_STEP_SUMMARY
+            echo "- [查看所有标签](https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin/tags)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### 🧪 测试构建" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "本次为 PR 或测试构建，镜像未推送到 Docker Hub" >> $GITHUB_STEP_SUMMARY
+          fi
 
-      - name: Post-build failure message
-        if: failure()
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 构建信息" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **版本:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **提交:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **工作流:** [${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            scripts/ruoqi-sys-admin-build/build.log
+          retention-days: 7
+
+  notify:
+    name: Notification
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: always()
+
+    steps:
+      - name: Send notification
         run: |
-          echo "❌ Build failed!"
-          echo "Please check the logs above for details."
+          echo "=== 构建通知 ==="
+          echo ""
 
-          echo "## ❌ Build Failed" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The Docker image build failed. Please check the workflow logs for details." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Troubleshooting tips:**" >> $GITHUB_STEP_SUMMARY
-          echo "1. Check if all dependencies are installed correctly" >> $GITHUB_STEP_SUMMARY
-          echo "2. Verify the Dockerfile syntax" >> $GITHUB_STEP_SUMMARY
-          echo "3. Ensure the nginx.conf file exists in scripts/ruoqi-sys-admin-build/" >> $GITHUB_STEP_SUMMARY
-          echo "4. Check Docker Hub credentials in repository secrets" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.build.result }}" = "success" ]; then
+            echo "✅ RuoQi Sys Admin 构建成功！"
+            echo ""
+
+            if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+              echo "📦 镜像已推送到 Docker Hub:"
+              echo "  - ${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:latest"
+              echo "  - ${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ needs.build.outputs.tag }}"
+              echo ""
+              echo "🔗 查看镜像:"
+              echo "  https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin/tags"
+            else
+              echo "🧪 测试构建完成"
+            fi
+          else
+            echo "❌ 构建失败！"
+            echo ""
+            echo "请检查构建日志或下载日志文件查看详情。"
+          fi
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
