@@ -43,6 +43,12 @@ jobs:
             echo "未在 apps/ruoqi-sys-admin 下找到 package.json"
           fi
 
+      ### 步骤3: 设置脚本执行权限（新增）###
+      - name: Make scripts executable
+        run: |
+          chmod +x ./scripts/ruoqi-sys-admin/docker_build.sh
+          chmod +x ./scripts/ruoqi-sys-admin/docker_push.sh
+
       ### 原有构建步骤 ###
       - name: Build Docker image
         run: |
