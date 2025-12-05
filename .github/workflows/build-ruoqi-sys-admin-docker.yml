@@ -18,14 +18,14 @@ jobs:
 
       - name: Build Docker image
         run: |
-          ./scripts/rupqi-admin/docker_build.sh
+          ./scripts/rupqi-sys-admin/docker_build.sh
 
       - name: docker images
         run: docker images
 
       - name: Push Docker image
         run: |
-          ./scripts/rupqi-admin/docker_push.sh
+          ./scripts/rupqi-sys-admin/docker_push.sh
 
   notification:
     if: startsWith(github.server_url, 'https://github.com')
