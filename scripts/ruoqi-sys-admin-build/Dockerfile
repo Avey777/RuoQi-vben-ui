@@ -30,7 +30,7 @@ RUN echo "types { application/javascript js mjs; }" > /etc/nginx/conf.d/mjs.conf
 COPY --from=builder /app/apps/ruoqi-sys-admin/dist /usr/share/nginx/html
 
 # 复制 nginx 配置 (从当前目录复制)
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY scripts/ruoqi-sys-admin-build/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 8081
 
