@@ -7,46 +7,28 @@ set -euo pipefail
 TAG="${1:-latest}"
 LOCAL_IMAGE_NAME="ruoqi-sys-admin"
 
-# 从多种可能的位置获取 Docker Hub 用户名
-# 1. 从环境变量
-# 2. 从 .env 文件
-# 3. 从脚本参数
-
-# 优先使用环境变量
-DOCKER_HUB_USERNAME="${DOCKER_HUB_USERNAME:-}"
-DOCKER_HUB_ACCESS_TOKEN="${DOCKER_HUB_ACCESS_TOKEN:-}"
-
-# 如果环境变量为空，尝试从 .env 文件加载
-if [[ -z "$DOCKER_HUB_USERNAME" ]] && [[ -f ".env" ]]; then
-    echo "尝试从 .env 文件加载环境变量"
-    source .env 2>/dev/null || true
-fi
-
-# 再次检查
-DOCKER_HUB_USERNAME="${DOCKER_HUB_USERNAME:-}"
-DOCKER_HUB_ACCESS_TOKEN="${DOCKER_HUB_ACCESS_TOKEN:-}"
+# 从环境变量获取（兼容不同命名）
+DOCKER_HUB_USERNAME="${DOCKER_HUB_USERNAME:-${DOCKER_HUB_USER:-}}"
+DOCKER_HUB_ACCESS_TOKEN="${DOCKER_HUB_ACCESS_TOKEN:-${DOCKER_HUB_TOKEN:-}}"
 
 echo "=== 准备推送 RuoQi Sys Admin 镜像 ==="
-echo "本地镜像: $LOCAL_IMAGE_NAME"
 echo "标签: $TAG"
 
-# 如果仍然没有用户名，尝试从 secrets 文件读取（GitHub Actions 场景）
-if [[ -z "$DOCKER_HUB_USERNAME" ]] && [[ -f "/github/workflow/secrets.json" ]]; then
-    echo "尝试从 GitHub Secrets 读取"
-    # 这里可以根据实际情况调整
-fi
+# 调试信息
+echo "🔍 调试信息:"
+echo "DOCKER_HUB_USERNAME: ${DOCKER_HUB_USERNAME}"
+echo "DOCKER_HUB_ACCESS_TOKEN 长度: ${#DOCKER_HUB_ACCESS_TOKEN}"
 
-# 最后检查，如果还是没有就报错
+# 检查环境变量
 if [[ -z "$DOCKER_HUB_USERNAME" ]]; then
     echo "❌ 错误: DOCKER_HUB_USERNAME 未设置"
     echo ""
-    echo "请在以下位置之一设置:"
-    echo "  1. 环境变量 DOCKER_HUB_USERNAME"
-    echo "  2. .env 文件"
-    echo "  3. GitHub Secrets"
-    echo ""
-    echo "当前环境:"
+    echo "当前环境变量:"
     printenv | grep -E "(DOCKER|USER)" || echo "未找到相关环境变量"
+    echo ""
+    echo "请检查 GitHub Secrets 配置:"
+    echo "1. 访问 https://github.com/${{ github.repository }}/settings/secrets/actions"
+    echo "2. 确保已配置 DOCKER_HUB_USERNAME 和 DOCKER_HUB_ACCESS_TOKEN"
     exit 1
 fi
 
@@ -55,12 +37,14 @@ if [[ -z "$DOCKER_HUB_ACCESS_TOKEN" ]]; then
     exit 1
 fi
 
+# 构建完整镜像名称
 REMOTE_IMAGE_NAME="${DOCKER_HUB_USERNAME}/ruoqi-sys-admin:$TAG"
 echo "远程镜像: $REMOTE_IMAGE_NAME"
 
 # 检查本地镜像
 if ! docker image inspect "$LOCAL_IMAGE_NAME" > /dev/null 2>&1; then
     echo "❌ 错误: 本地镜像 $LOCAL_IMAGE_NAME 不存在"
+    echo "请先运行构建脚本: ./build.sh"
     exit 1
 fi
 
@@ -70,6 +54,10 @@ echo "✅ 本地镜像存在"
 echo "=== 登录 Docker Hub ==="
 echo "$DOCKER_HUB_ACCESS_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin || {
     echo "❌ Docker Hub 登录失败"
+    echo "请检查:"
+    echo "1. 用户名和访问令牌是否正确"
+    echo "2. 访问令牌是否有 push 权限"
+    echo "3. 网络连接是否正常"
     exit 1
 }
 
@@ -82,17 +70,37 @@ docker tag "$LOCAL_IMAGE_NAME" "$REMOTE_IMAGE_NAME" || {
     exit 1
 }
 
+echo "✅ 标签创建完成"
+
 # 推送镜像
 echo "=== 开始推送镜像 ==="
 docker push "$REMOTE_IMAGE_NAME" || {
     echo "❌ 推送失败"
+    echo "可能原因:"
+    echo "1. 仓库权限不足"
+    echo "2. 镜像名称格式错误"
+    echo "3. 网络问题"
     exit 1
 }
 
 echo "✅ 镜像推送成功"
 
-# 清理
-docker rmi "$REMOTE_IMAGE_NAME" 2>/dev/null || true
+# 清理临时标签
+echo "=== 清理临时标签 ==="
+docker rmi "$REMOTE_IMAGE_NAME" 2>/dev/null || {
+    echo "⚠️  清理标签失败，继续执行"
+}
 
 echo ""
-echo "🎉 推送完成: $REMOTE_IMAGE_NAME"
+echo "========================================"
+echo "🎉 推送完成!"
+echo "========================================"
+echo ""
+echo "📦 镜像: $REMOTE_IMAGE_NAME"
+echo ""
+echo "🔗 Docker Hub 链接:"
+echo "   https://hub.docker.com/r/$DOCKER_HUB_USERNAME/ruoqi-sys-admin"
+echo ""
+echo "📋 拉取命令:"
+echo "   docker pull $REMOTE_IMAGE_NAME"
+echo "========================================"
