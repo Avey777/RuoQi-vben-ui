@@ -7,35 +7,24 @@ set -euo pipefail
 TAG="${1:-latest}"
 LOCAL_IMAGE_NAME="ruoqi-sys-admin"
 
-# 从环境变量获取（兼容不同命名）
-DOCKER_HUB_USERNAME="${DOCKER_HUB_USERNAME:-${DOCKER_HUB_USER:-}}"
-DOCKER_HUB_ACCESS_TOKEN="${DOCKER_HUB_ACCESS_TOKEN:-${DOCKER_HUB_TOKEN:-}}"
+# -----------------------------
+# 设置 Docker Hub 用户名和访问令牌
+# -----------------------------
+DOCKER_HUB_USERNAME="${DOCKER_HUB_USERNAME:-}"
+DOCKER_HUB_ACCESS_TOKEN="${DOCKER_HUB_ACCESS_TOKEN:-}"
 
-echo "=== 准备推送 RuoQi Sys Admin 镜像 ==="
-echo "标签: $TAG"
+if [[ -z "$DOCKER_HUB_USERNAME" ]] || [[ -z "$DOCKER_HUB_ACCESS_TOKEN" ]]; then
+    echo "错误: DOCKER_HUB_USERNAME 或 DOCKER_HUB_ACCESS_TOKEN 未设置"
+    exit 1
+fi
 
+# -----------------------------
 # 调试信息
-echo "🔍 调试信息:"
+# -----------------------------
+echo "=== 环境变量检查 ==="
 echo "用户名: ${DOCKER_HUB_USERNAME:-未设置}"
 echo "访问令牌: ${DOCKER_HUB_ACCESS_TOKEN:+已设置（隐藏）}"
 
-# 检查环境变量
-if [[ -z "$DOCKER_HUB_USERNAME" ]]; then
-    echo "❌ 错误: DOCKER_HUB_USERNAME 未设置"
-    echo ""
-    echo "当前环境变量:"
-    printenv | grep -E "(DOCKER|USER)" || echo "未找到相关环境变量"
-    echo ""
-    echo "请检查 GitHub Secrets 配置:"
-    echo "1. 访问 https://github.com/${{ github.repository }}/settings/secrets/actions"
-    echo "2. 确保已配置 DOCKER_HUB_USERNAME 和 DOCKER_HUB_ACCESS_TOKEN"
-    exit 1
-fi
-
-if [[ -z "$DOCKER_HUB_ACCESS_TOKEN" ]]; then
-    echo "❌ 错误: DOCKER_HUB_ACCESS_TOKEN 未设置"
-    exit 1
-fi
 
 # 构建完整镜像名称
 REMOTE_IMAGE_NAME="${DOCKER_HUB_USERNAME}/ruoqi-sys-admin:$TAG"
