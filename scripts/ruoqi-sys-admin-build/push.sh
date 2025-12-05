@@ -16,8 +16,8 @@ echo "标签: $TAG"
 
 # 调试信息
 echo "🔍 调试信息:"
-echo "DOCKER_HUB_USERNAME: ${DOCKER_HUB_USERNAME}"
-echo "DOCKER_HUB_ACCESS_TOKEN 长度: ${#DOCKER_HUB_ACCESS_TOKEN}"
+echo "用户名: ${DOCKER_HUB_USERNAME:-未设置}"
+echo "访问令牌: ${DOCKER_HUB_ACCESS_TOKEN:+已设置（隐藏）}"
 
 # 检查环境变量
 if [[ -z "$DOCKER_HUB_USERNAME" ]]; then
@@ -50,14 +50,12 @@ fi
 
 echo "✅ 本地镜像存在"
 
+# -----------------------------
 # 登录 Docker Hub
+# -----------------------------
 echo "=== 登录 Docker Hub ==="
 echo "$DOCKER_HUB_ACCESS_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin || {
-    echo "❌ Docker Hub 登录失败"
-    echo "请检查:"
-    echo "1. 用户名和访问令牌是否正确"
-    echo "2. 访问令牌是否有 push 权限"
-    echo "3. 网络连接是否正常"
+    echo "Docker Hub 登录失败，请检查用户名/Access Token 或网络"
     exit 1
 }
 

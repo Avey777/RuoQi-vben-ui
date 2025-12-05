@@ -10,18 +10,14 @@ on:
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - '.node-version'
-  workflow_dispatch: # 允许手动触发
-    inputs:
-      version_tag:
-        description: '手动指定版本标签（可选）'
-        required: false
-        default: ''
 
 jobs:
   build_and_push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-
+    env:
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     steps:
       # 1. 检出代码
       - name: Checkout code
