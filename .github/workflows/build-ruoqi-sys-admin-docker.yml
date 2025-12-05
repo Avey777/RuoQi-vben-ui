@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'sys'
 
 jobs:
   docker_push:
@@ -16,6 +17,33 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      ### 步骤1: 设置 Node.js ###
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      ### 步骤2: 安装正确版本的 pnpm ###
+      - name: Install and setup pnpm
+        run: |
+          # 卸载可能存在的旧版本，安装项目要求的 pnpm 9.12.0 或更高版本
+          npm uninstall -g pnpm 2>/dev/null || true
+          npm install -g pnpm@9
+          # 验证版本
+          pnpm --version
+
+      ### 步骤3: （可选）检查项目根目录的 package.json ###
+      - name: Check project configuration
+        run: |
+          echo "检查项目 pnpm 引擎要求..."
+          if [ -f "./apps/ruoqi-sys-admin/package.json" ]; then
+            cd ./apps/ruoqi-sys-admin
+            node -p "JSON.parse(require('fs').readFileSync('package.json')).engines?.pnpm || '未指定 pnpm 版本要求'"
+          else
+            echo "未在 apps/ruoqi-sys-admin 下找到 package.json"
+          fi
+
+      ### 原有构建步骤 ###
       - name: Build Docker image
         run: |
           ./scripts/ruoqi-sys-admin/docker_build.sh
