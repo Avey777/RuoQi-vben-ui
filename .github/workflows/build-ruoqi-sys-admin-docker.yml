@@ -9,77 +9,135 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
-      - '.node-version' # 新增：监控.node-version文件变化
+      - '.node-version'
   workflow_dispatch: # 允许手动触发
+    inputs:
+      version_tag:
+        description: '手动指定版本标签（可选）'
+        required: false
+        default: ''
 
 jobs:
-  build:
+  build_and_push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-
     env:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
     steps:
+      # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # 2. 设置 Node.js 和 pnpm
       - name: Setup Node and pnpm
-        uses: ./.github/actions/setup-node # 使用你的自定义Action
+        uses: ./.github/actions/setup-node
 
-      - name: Run build script
+      # 3. 准备构建脚本
+      - name: Prepare build scripts
         run: |
-          echo "=== 运行构建脚本 ==="
+          echo "=== 准备构建脚本 ==="
           cd scripts/ruoqi-sys-admin-build
 
           # 确保脚本有执行权限
-          chmod +x build.sh || true
-          chmod +x push.sh || true
+          chmod +x *.sh || true
 
-          # 检查脚本是否存在
+          # 显示脚本信息
+          echo "脚本列表:"
+          ls -la *.sh
+
+          # 验证必要脚本
           if [ ! -f "build.sh" ]; then
-            echo "错误: build.sh 脚本不存在"
+            echo "❌ 错误: build.sh 脚本不存在"
             exit 1
           fi
 
-          # 运行构建脚本（只构建不运行容器）
-          ./build.sh --no-run  # 只构建，不运行容器
+          if [ ! -f "push.sh" ]; then
+            echo "❌ 错误: push.sh 脚本不存在"
+            exit 1
+          fi
 
-      - name: Generate version tag
+      # 4. 生成版本信息
+      - name: Generate version information
         id: version
         run: |
-          echo "=== 生成版本标签 ==="
+          echo "=== 生成版本信息 ==="
 
-          # 获取版本号
+          # 检查手动输入的版本标签
+          MANUAL_TAG="${{ github.event.inputs.version_tag }}"
+          if [ -n "${MANUAL_TAG}" ]; then
+            echo "使用手动指定的标签: ${MANUAL_TAG}"
+            echo "tag=${MANUAL_TAG}" >> $GITHUB_OUTPUT
+            echo "manual_tag=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # 从 package.json 获取版本
           VERSION="1.0.0"
           if [ -f "./apps/ruoqi-sys-admin/package.json" ]; then
             VERSION=$(node -p "require('./apps/ruoqi-sys-admin/package.json').version || '1.0.0'" 2>/dev/null || echo "1.0.0")
           fi
 
+          # 生成各种标签
           SHORT_SHA=${GITHUB_SHA::8}
           DATE=$(date +'%Y%m%d')
-          TAG="v${VERSION}-${DATE}-${SHORT_SHA}"
 
-          echo "Version: ${VERSION}"
-          echo "Commit SHA: ${SHORT_SHA}"
-          echo "Date: ${DATE}"
-          echo "Full tag: ${TAG}"
+          # 标签列表
+          TAG_LATEST="latest"
+          TAG_VERSION="v${VERSION}"
+          TAG_DATE_VERSION="v${VERSION}-${DATE}"
+          TAG_FULL="v${VERSION}-${DATE}-${SHORT_SHA}"
 
-          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "基础版本: ${VERSION}"
+          echo "提交哈希: ${SHORT_SHA}"
+          echo "构建日期: ${DATE}"
+          echo ""
+          echo "生成的标签:"
+          echo "  1. ${TAG_LATEST} (latest)"
+          echo "  2. ${TAG_VERSION} (语义化版本)"
+          echo "  3. ${TAG_DATE_VERSION} (带日期版本)"
+          echo "  4. ${TAG_FULL} (完整版本)"
+
+          # 输出到环境变量
+          echo "tag_latest=${TAG_LATEST}" >> $GITHUB_OUTPUT
+          echo "tag_version=${TAG_VERSION}" >> $GITHUB_OUTPUT
+          echo "tag_date_version=${TAG_DATE_VERSION}" >> $GITHUB_OUTPUT
+          echo "tag_full=${TAG_FULL}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "date=${DATE}" >> $GITHUB_OUTPUT
           echo "sha_short=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "date=${DATE}" >> $GITHUB_OUTPUT
+          echo "manual_tag=false" >> $GITHUB_OUTPUT
 
-      - name: Login to Docker Hub
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
+      # 5. 构建 Docker 镜像
+      - name: Build Docker image
+        id: build
+        run: |
+          echo "=== 构建 Docker 镜像 ==="
+          cd scripts/ruoqi-sys-admin-build
 
+          # 检查是否使用手动标签
+          if [[ "${{ steps.version.outputs.manual_tag }}" == "true" ]]; then
+            echo "使用手动标签模式"
+          fi
+
+          # 构建镜像（使用 --no-run 参数只构建不运行）
+          echo "执行构建命令: ./build.sh --no-run"
+          ./build.sh --no-run
+
+          # 验证镜像是否构建成功
+          if docker images | grep -q "ruoqi-sys-admin"; then
+            echo "✅ Docker 镜像构建成功"
+            echo "镜像详情:"
+            docker images | grep "ruoqi-sys-admin"
+          else
+            echo "❌ Docker 镜像构建失败"
+            exit 1
+          fi
+
+      # 6. 推送镜像到 Docker Hub
       - name: Push to Docker Hub
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: |
@@ -90,89 +148,209 @@ jobs:
           export DOCKER_HUB_USERNAME="${{ env.DOCKER_HUB_USERNAME }}"
           export DOCKER_HUB_ACCESS_TOKEN="${{ env.DOCKER_HUB_ACCESS_TOKEN }}"
 
-          # 推送多个标签
-          echo "推送标签: latest"
-          ./push.sh latest
+          # 确定要推送的标签
+          if [[ "${{ steps.version.outputs.manual_tag }}" == "true" ]]; then
+            # 使用手动标签
+            TAGS=("${{ steps.version.outputs.tag }}")
+            echo "使用手动标签: ${TAGS[0]}"
+          else
+            # 使用自动生成的标签
+            TAGS=(
+              "${{ steps.version.outputs.tag_latest }}"
+              "${{ steps.version.outputs.tag_version }}"
+              "${{ steps.version.outputs.tag_date_version }}"
+              "${{ steps.version.outputs.tag_full }}"
+            )
+            echo "使用自动生成的标签:"
+            printf '  - %s\n' "${TAGS[@]}"
+          fi
 
-          echo "推送标签: ${{ steps.version.outputs.tag }}"
-          ./push.sh "${{ steps.version.outputs.tag }}"
+          # 推送所有标签
+          for TAG in "${TAGS[@]}"; do
+            echo ""
+            echo "🔹 推送标签: ${TAG}"
+            echo "----------------------------------------"
+            ./push.sh "${TAG}"
+            echo "✅ ${TAG} 推送完成"
+            echo ""
+          done
 
-          echo "推送标签: v${{ steps.version.outputs.version }}"
-          ./push.sh "v${{ steps.version.outputs.version }}"
+          echo "🎉 所有镜像推送完成！"
 
+      # 7. 创建构建摘要
       - name: Create build summary
-        if: success()
+        if: always()
         run: |
-          echo "## 🎉 RuoQi Sys Admin 构建成功" >> $GITHUB_STEP_SUMMARY
+          echo "## 🏗️ RuoQi Sys Admin 构建报告" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "### 📦 Docker 镜像" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:latest\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:v${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 🔗 相关链接" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- [Docker Hub 仓库](https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin)" >> $GITHUB_STEP_SUMMARY
-            echo "- [查看所有标签](https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin/tags)" >> $GITHUB_STEP_SUMMARY
+          # 构建状态
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "### ✅ 构建成功" >> $GITHUB_STEP_SUMMARY
           else
-            echo "### 🧪 测试构建" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "本次为 PR 或测试构建，镜像未推送到 Docker Hub" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ 构建失败" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 构建信息" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **版本:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **提交:** [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> $GITHUB_STEP_SUMMARY
-          echo "- **触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **工作流:** [${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
-          echo "- **构建时间:** ${{ steps.version.outputs.date }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **标签:** ${{ steps.version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
 
+          # 镜像信息部分
+          echo "### 📦 镜像信息" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "**已推送到 Docker Hub:**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            if [[ "${{ steps.version.outputs.manual_tag }}" == "true" ]]; then
+              echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:latest\`" >> $GITHUB_STEP_SUMMARY
+              echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ steps.version.outputs.tag_version }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ steps.version.outputs.tag_date_version }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ steps.version.outputs.tag_full }}\`" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Docker Hub 链接:**" >> $GITHUB_STEP_SUMMARY
+            echo "- [仓库主页](https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin)" >> $GITHUB_STEP_SUMMARY
+            echo "- [所有标签](https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin/tags)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**本地镜像:**" >> $GITHUB_STEP_SUMMARY
+            echo "- \`ruoqi-sys-admin:latest\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "> 注：本次为 PR 或测试构建，镜像未推送到 Docker Hub" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # 构建详情
+          echo "### 📊 构建详情" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "| 项目 | 详情 |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **版本** | ${{ steps.version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **提交** | [${{ steps.version.outputs.sha_short }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **构建日期** | ${{ steps.version.outputs.date }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **触发方式** | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **触发者** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **分支** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **工作流** | [${{ github.workflow }} #${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # 标签详情
+          echo "### 🏷️ 标签详情" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ steps.version.outputs.manual_tag }}" == "true" ]]; then
+            echo "- **手动标签:** \`${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **latest:** \`${{ steps.version.outputs.tag_latest }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **语义化版本:** \`${{ steps.version.outputs.tag_version }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **带日期版本:** \`${{ steps.version.outputs.tag_date_version }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **完整版本:** \`${{ steps.version.outputs.tag_full }}\`" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # 8. 上传构建日志
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-logs
+          name: build-logs-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             scripts/ruoqi-sys-admin-build/build.log
-          retention-days: 7
+            scripts/ruoqi-sys-admin-build/*.log
+          retention-days: 30
 
-  notify:
-    name: Notification
+      # 9. 清理 Docker 资源
+      - name: Cleanup Docker resources
+        if: always()
+        run: |
+          echo "=== 清理 Docker 资源 ==="
+
+          # 删除构建的镜像
+          docker rmi ruoqi-sys-admin:latest 2>/dev/null || true
+
+          # 清理无用的 Docker 资源
+          docker system prune -f 2>/dev/null || true
+
+          echo "✅ 资源清理完成"
+
+  # 10. 通知任务
+  notification:
+    name: 📢 Build Notification
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build_and_push]
     if: always()
 
     steps:
       - name: Send notification
         run: |
-          echo "=== 构建通知 ==="
+          echo "=== RuoQi Sys Admin 构建通知 ==="
           echo ""
 
-          if [ "${{ needs.build.result }}" = "success" ]; then
-            echo "✅ RuoQi Sys Admin 构建成功！"
+          # 基本构建信息
+          echo "**项目:** RuoQi Sys Admin"
+          echo "**仓库:** ${{ github.repository }}"
+          echo "**分支:** ${{ github.ref_name }}"
+          echo "**触发者:** ${{ github.actor }}"
+          echo "**工作流:** ${{ github.workflow }} #${{ github.run_number }}"
+          echo "**状态:** ${{ needs.build_and_push.result }}"
+          echo ""
+
+          # 根据不同状态显示不同信息
+          if [ "${{ needs.build_and_push.result }}" = "success" ]; then
+            echo "🎉 **构建成功！**"
             echo ""
 
+            # 镜像信息
             if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.ref }}" == "refs/heads/main" ]]; then
-              echo "📦 镜像已推送到 Docker Hub:"
-              echo "  - ${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:latest"
-              echo "  - ${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ needs.build.outputs.tag }}"
-              echo "  - ${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:v${{ needs.build.outputs.version }}"
+              echo "📦 **Docker 镜像已发布:**"
               echo ""
-              echo "🔗 查看镜像:"
-              echo "  https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin/tags"
+
+              if [[ "${{ needs.build_and_push.outputs.manual_tag }}" == "true" ]]; then
+                echo "  \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ needs.build_and_push.outputs.tag }}\`"
+              else
+                echo "  \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:latest\`"
+                echo "  \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ needs.build_and_push.outputs.tag_version }}\`"
+                echo "  \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ needs.build_and_push.outputs.tag_date_version }}\`"
+                echo "  \`${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin:${{ needs.build_and_push.outputs.tag_full }}\`"
+              fi
+
+              echo ""
+              echo "🔗 **相关链接:**"
+              echo "  - [Docker Hub 仓库](https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin)"
+              echo "  - [查看所有标签](https://hub.docker.com/r/${{ env.DOCKER_HUB_USERNAME }}/ruoqi-sys-admin/tags)"
+              echo "  - [构建详情](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
             else
-              echo "🧪 测试构建完成"
+              echo "🧪 **测试构建完成**"
+              echo "镜像仅在本地构建，未推送到 Docker Hub"
             fi
           else
-            echo "❌ 构建失败！"
+            echo "❌ **构建失败！**"
             echo ""
-            echo "请检查构建日志或下载日志文件查看详情。"
+            echo "请检查以下可能的原因:"
+            echo "  1. 构建脚本执行失败"
+            echo "  2. Docker 镜像构建错误"
+            echo "  3. 网络连接问题"
+            echo "  4. 权限配置错误"
+            echo ""
+            echo "📋 **排查步骤:**"
+            echo "  1. 查看 GitHub Actions 日志"
+            echo "  2. 检查 Secrets 配置"
+            echo "  3. 验证本地构建是否正常"
+            echo ""
+            echo "🔗 **构建日志:**"
+            echo "  https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           fi
+
+          echo ""
+          echo "---"
+          echo "📊 **构建信息汇总:**"
+          echo "- 版本: ${{ needs.build_and_push.outputs.version }}"
+          echo "- 提交: ${{ needs.build_and_push.outputs.sha_short }}"
+          echo "- 日期: ${{ needs.build_and_push.outputs.date }}"
+          echo "- 触发方式: ${{ github.event_name }}"
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
