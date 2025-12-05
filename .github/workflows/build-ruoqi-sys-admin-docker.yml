@@ -140,13 +140,21 @@ jobs:
       # 6. 推送镜像到 Docker Hub
       - name: Push to Docker Hub
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          # 明确传递环境变量到子进程
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
         run: |
           echo "=== 推送镜像到 Docker Hub ==="
+          echo "当前目录: $(pwd)"
+
+          # 进入脚本目录
           cd scripts/ruoqi-sys-admin-build
 
-          # 设置环境变量
-          export DOCKER_HUB_USERNAME="${{ env.DOCKER_HUB_USERNAME }}"
-          export DOCKER_HUB_ACCESS_TOKEN="${{ env.DOCKER_HUB_ACCESS_TOKEN }}"
+          # 调试：显示环境变量
+          echo "环境变量检查:"
+          echo "DOCKER_HUB_USERNAME: ${DOCKER_HUB_USERNAME}"
+          echo "DOCKER_HUB_ACCESS_TOKEN: ${DOCKER_HUB_ACCESS_TOKEN:0:10}..."
 
           # 确定要推送的标签
           if [[ "${{ steps.version.outputs.manual_tag }}" == "true" ]]; then
@@ -170,9 +178,18 @@ jobs:
             echo ""
             echo "🔹 推送标签: ${TAG}"
             echo "----------------------------------------"
+
+            # 确保环境变量传递给脚本
+            export DOCKER_HUB_USERNAME="${DOCKER_HUB_USERNAME}"
+            export DOCKER_HUB_ACCESS_TOKEN="${DOCKER_HUB_ACCESS_TOKEN}"
+
             ./push.sh "${TAG}"
-            echo "✅ ${TAG} 推送完成"
-            echo ""
+
+            # 添加延时，避免 Docker Hub 限流
+            if [ "$TAG" != "${TAGS[-1]}" ]; then
+              echo "等待 2 秒后推送下一个标签..."
+              sleep 2
+            fi
           done
 
           echo "🎉 所有镜像推送完成！"
