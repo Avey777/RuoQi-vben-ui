@@ -67,7 +67,38 @@ const [Modal, modalApi] = useVbenModal({
     record.value = isOpen ? modalApi.getData()?.record || {} : {};
     gridApi.value = isOpen ? modalApi.getData()?.gridApi : null;
     if (isOpen) {
-      formApi.setValues(record.value);
+      // 只转换特定的布尔字段
+      const processedValues = { ...record.value };
+
+      // 只有这些字段需要从数字转布尔值
+      const booleanFields = [
+        'disabled',
+        'ignoreKeepAlive',
+        'hideMenu',
+        'hideBreadcrumb',
+        'hideTab',
+        'carryParam',
+        'hideChildrenInMenu',
+        'affix',
+      ];
+
+      booleanFields.forEach((field) => {
+        if (processedValues[field] !== undefined) {
+          // 只处理数字 0/1 的情况
+          if (processedValues[field] === 0 || processedValues[field] === 1) {
+            processedValues[field] = !!processedValues[field];
+          }
+          // 如果是字符串 '0'/'1' 也转换
+          if (
+            processedValues[field] === '0' ||
+            processedValues[field] === '1'
+          ) {
+            processedValues[field] = processedValues[field] === '1';
+          }
+        }
+      });
+
+      formApi.setValues(processedValues);
     }
     modalApi.setState({
       title: isUpdate.value ? $t('sys.menu.editMenu') : $t('sys.menu.addMenu'),
