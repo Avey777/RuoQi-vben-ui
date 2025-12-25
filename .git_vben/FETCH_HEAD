@@ -1,0 +1,18 @@
+a1bb13223380540394afdf2bb62ca5a3e966cff1		branch 'main' of https://github.com/vbenjs/vue-vben-admin
+b8182b6c3013b8e12c165313b601d555945d0c1e	not-for-merge	branch 'PageSpy' of https://github.com/vbenjs/vue-vben-admin
+382918b8f081a994981251e5c410612310244e6e	not-for-merge	branch 'alova' of https://github.com/vbenjs/vue-vben-admin
+78b97c3077b1cd64793ed010f757734f41a04e75	not-for-merge	branch 'copilot/fix-eslint-range-error' of https://github.com/vbenjs/vue-vben-admin
+9a20c286c0a4094d969ada6848481c463a1cdd48	not-for-merge	branch 'copilot/upgrade-tailwind-css-v4' of https://github.com/vbenjs/vue-vben-admin
+6c3b28885db606eb090523d6669571503a6c5b4d	not-for-merge	branch 'dependabot/npm_and_yarn/execa-9.6.1' of https://github.com/vbenjs/vue-vben-admin
+fb0330ba3f6a88c14e94b87fce333abf982421d3	not-for-merge	branch 'dependabot/npm_and_yarn/non-breaking-changes-5e08df2b4a' of https://github.com/vbenjs/vue-vben-admin
+0f4baa29206429da1bb80a1faab5a47f521bea55	not-for-merge	branch 'dependabot/npm_and_yarn/stylelint-config-standard-39.0.1' of https://github.com/vbenjs/vue-vben-admin
+52f340a80168d0b39bc5bda333e4bf7b23aeaf96	not-for-merge	branch 'dependabot/npm_and_yarn/tailwind-merge-3.4.0' of https://github.com/vbenjs/vue-vben-admin
+0f5154494863fc446cad22169b9895aec41abfef	not-for-merge	branch 'dependabot/npm_and_yarn/zod-4.2.1' of https://github.com/vbenjs/vue-vben-admin
+dc2b8f00e029119898a2cf6f29402f23ba622597	not-for-merge	branch 'doc' of https://github.com/vbenjs/vue-vben-admin
+de231901a6bc74bcee598b47a08ed13301c8c51d	not-for-merge	branch 'electron-v2' of https://github.com/vbenjs/vue-vben-admin
+67071326a17f9900986fb833b5532cfd060d7245	not-for-merge	branch 'electron-v5' of https://github.com/vbenjs/vue-vben-admin
+9cf0298c9995dd52c83c4f63208eea8d3c384670	not-for-merge	branch 'gh-pages' of https://github.com/vbenjs/vue-vben-admin
+9b53f26253df58d35515230ae864c0283865c747	not-for-merge	branch 'tauri' of https://github.com/vbenjs/vue-vben-admin
+840def74a91c4fab4e14bc9bd34a2eb1b2bedaba	not-for-merge	branch 'thin' of https://github.com/vbenjs/vue-vben-admin
+f918dc24c61e4c58078a62612109e13b617046dd	not-for-merge	branch 'update-depends' of https://github.com/vbenjs/vue-vben-admin
+038936ff7d6178b1f3da2f5e6a36dc5a1155c74b	not-for-merge	branch 'v2' of https://github.com/vbenjs/vue-vben-admin

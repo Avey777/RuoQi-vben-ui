@@ -9,8 +9,7 @@ export default defineConfig(async () => {
           '/sys_admin': {
             changeOrigin: true,
             rewrite: (path) => path.replace(/^\/sys_admin/, ''),
-            target:
-              'https://kuwxezwenpbb.us-west-1.clawcloudrun.com/sys_admin/',
+            target: 'http://192.168.2.67:9009/sys_admin/',
             ws: true,
           },
           // '/fms-api': {
