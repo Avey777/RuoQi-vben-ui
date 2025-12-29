@@ -1,10 +1,10 @@
-import { type BaseListResp } from '../../model/baseModel';
+import type { BaseListResp } from '../../model/baseModel';
 
 /**
  *  @description: Task info response
  */
 export interface TaskInfo {
-  id?: number;
+  id?: string;
   createdAt?: number;
   updatedAt?: number;
   status?: number;

@@ -3,11 +3,11 @@
  *  @description:
  */
 
-import { type BaseListResp } from '../../model/baseModel';
+import type { BaseListResp } from '../../model/baseModel';
 
 export interface MenuAuthorityInfo {
-  roleId: number;
-  menuIds: number[];
+  roleId: string;
+  menuIds: string[];
 }
 
 /**
@@ -35,7 +35,7 @@ export interface ApiAuthorityInfo {
  */
 
 export interface ApiAuthorityReq {
-  roleId: number;
+  roleId: string;
   data: ApiAuthorityInfo[];
 }
 

@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+import type { VbenFormProps } from '@vben/common-ui';
+
 import type { VxeGridListeners, VxeGridProps } from '#/adapter/vxe-table';
 import type { OauthProviderInfo } from '#/api/sys/model/oauthProviderModel';
+import type { ActionItem } from '#/components/table/table-action';
 
 import { h, ref } from 'vue';
 
-import { Page, useVbenModal, type VbenFormProps } from '@vben/common-ui';
+import { Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { Button, Modal } from 'ant-design-vue';
@@ -15,7 +18,7 @@ import {
   deleteOauthProvider,
   getOauthProviderList,
 } from '#/api/sys/oauthProvider';
-import { type ActionItem, TableAction } from '#/components/table/table-action';
+import { TableAction } from '#/components/table/table-action';
 
 import OauthProviderForm from './form.vue';
 import { searchFormSchemas, tableColumns } from './schemas';
@@ -164,13 +167,15 @@ async function batchDelete(ids: any[]) {
           type="primary"
           @click="handleBatchDelete"
         >
-          {{ $t('common.delete') }}  <!-- 删除 -->
+          {{ $t('common.delete') }}
+          <!-- 删除 -->
         </Button>
       </template>
 
       <template #toolbar-tools>
         <Button type="primary" @click="openFormModal">
-          {{ $t('sys.oauth.addProvider') }}  <!-- 添加第三方 -->
+          {{ $t('sys.oauth.addProvider') }}
+          <!-- 添加第三方 -->
         </Button>
       </template>
     </Grid>

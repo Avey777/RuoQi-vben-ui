@@ -1,10 +1,10 @@
-import { type BaseListResp } from '../../model/baseModel';
+import type { BaseListResp } from '../../model/baseModel';
 
 /**
  *  @description: Dictionary info response
  */
 export interface DictionaryInfo {
-  id?: number;
+  id?: string;
   createdAt?: number;
   updatedAt?: number;
   title?: string;

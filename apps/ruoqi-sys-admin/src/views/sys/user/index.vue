@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+import type { VbenFormProps } from '@vben/common-ui';
+
 import type { VxeGridListeners, VxeGridProps } from '#/adapter/vxe-table';
 import type { UserInfo } from '#/api/sys/model/userModel';
+import type { ActionItem } from '#/components/table/table-action';
 
 import { h, onMounted, ref } from 'vue';
 
-import { Page, useVbenModal, type VbenFormProps } from '@vben/common-ui';
+import { Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { Button, Card, Col, message, Modal, Row, Tree } from 'ant-design-vue';
@@ -14,7 +17,7 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDepartmentList } from '#/api/sys/department';
 import { logout } from '#/api/sys/token';
 import { deleteUser, getUserList } from '#/api/sys/user';
-import { type ActionItem, TableAction } from '#/components/table/table-action';
+import { TableAction } from '#/components/table/table-action';
 import { buildDataNode } from '#/utils/tree';
 
 import UserForm from './form.vue';
@@ -27,7 +30,7 @@ defineOptions({
 // ------------ department -------------------
 
 const treeData = ref();
-const selectedDepartmentId = ref();
+const selectedDepartmentId = ref<string>();
 
 async function fetchDepartmentData() {
   const deptData = await getDepartmentList({ page: 1, pageSize: 1000 });
@@ -42,7 +45,7 @@ async function fetchDepartmentData() {
 
 function selectDepartment(data: any) {
   selectedDepartmentId.value = data[0];
-  // eslint-disable-next-line no-use-before-define
+
   gridApi.reload();
 }
 
@@ -125,7 +128,7 @@ const gridOptions: VxeGridProps<UserInfo> = {
                 popConfirm: {
                   title: $t('common.deleteConfirm'),
                   placement: 'left',
-                  confirm: batchDelete.bind(null, [row.id]),
+                  confirm: batchDelete.bind(null, [row.id as string]),
                 },
               },
             ] as ActionItem[],
@@ -145,7 +148,7 @@ const gridOptions: VxeGridProps<UserInfo> = {
           departmentId: selectedDepartmentId.value,
           ...formValues,
         });
-        return res.result;
+        return res.data;
       },
     },
   },
@@ -191,7 +194,7 @@ function handleBatchDelete() {
   });
 }
 
-async function batchDelete(ids: any[]) {
+async function batchDelete(ids: string[]) {
   const result = await deleteUser({
     ids,
   });
@@ -202,7 +205,7 @@ async function batchDelete(ids: any[]) {
 }
 
 async function handleForceLogout(record: any) {
-  const result = await logout(record.id);
+  const result = await logout(record.id as string);
   if (result.code === 0) {
     message.success($t('common.successful'));
   }

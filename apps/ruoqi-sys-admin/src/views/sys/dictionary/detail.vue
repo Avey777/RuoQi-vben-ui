@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { VxeGridListeners, VxeGridProps } from '#/adapter/vxe-table';
 import type { DictionaryDetailInfo } from '#/api/sys/model/dictionaryDetailModel';
+import type { ActionItem } from '#/components/table/table-action';
 
 import { h, ref } from 'vue';
 
@@ -16,7 +17,7 @@ import {
   getDictionaryDetailList,
   updateDictionaryDetail,
 } from '#/api/sys/dictionaryDetail';
-import { type ActionItem, TableAction } from '#/components/table/table-action';
+import { TableAction } from '#/components/table/table-action';
 
 import { detailTableColumns } from './schemas';
 
@@ -72,7 +73,7 @@ const gridOptions: VxeGridProps<DictionaryDetailInfo> = {
                 icon: 'clarity:note-edit-line',
                 tooltip: $t('common.edit'),
                 onClick: editRowEvent.bind(null, row),
-                // eslint-disable-next-line no-use-before-define
+
                 ifShow: !gridApi.grid?.isEditByRow(row),
               },
               {
@@ -80,7 +81,7 @@ const gridOptions: VxeGridProps<DictionaryDetailInfo> = {
                 icon: 'lucide-lab:save',
                 tooltip: $t('common.saveText'),
                 onClick: saveRowEvent.bind(null, row),
-                // eslint-disable-next-line no-use-before-define
+
                 ifShow: gridApi.grid?.isEditByRow(row),
               },
               {
@@ -88,7 +89,7 @@ const gridOptions: VxeGridProps<DictionaryDetailInfo> = {
                 icon: 'material-symbols:cancel-outline',
                 tooltip: $t('common.cancelText'),
                 onClick: editRowEvent.bind(null, row),
-                // eslint-disable-next-line no-use-before-define
+
                 ifShow: gridApi.grid?.isEditByRow(row),
               },
               {
@@ -101,7 +102,7 @@ const gridOptions: VxeGridProps<DictionaryDetailInfo> = {
                   placement: 'left',
                   confirm: batchDelete.bind(null, [row.id]),
                 },
-                // eslint-disable-next-line no-use-before-define
+
                 ifShow: !gridApi.grid?.isEditByRow(row),
               },
             ] as ActionItem[],
@@ -139,7 +140,7 @@ async function saveRowEvent(row: DictionaryDetailInfo) {
   await gridApi.grid?.clearEdit();
 
   const result =
-    row.id === 0
+    row.id === '00000000-0000-0000-0000-000000000000'
       ? await createDictionaryDetail(row)
       : await updateDictionaryDetail(row);
   if (result.code === 0) {
@@ -150,7 +151,7 @@ async function saveRowEvent(row: DictionaryDetailInfo) {
 
 function insertRowEvent() {
   const newRow: DictionaryDetailInfo = {
-    id: 0,
+    id: '00000000-0000-0000-0000-000000000000',
     createdAt: Date.now(),
     status: 1,
     dictionaryId: dictionaryId.value,

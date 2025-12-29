@@ -25,8 +25,8 @@ defineOptions({
 
 const treeApiData = ref<DataNode[]>([]);
 
-const checkedKeys = ref();
-const roleId = ref<number>();
+const checkedKeys = ref<string[]>([]);
+const roleId = ref<string>();
 let tempApiList: BaseDataResp<ApiListResp> = {
   code: 0,
   msg: '',
@@ -44,7 +44,7 @@ const [Modal, modalApi] = useVbenModal({
       tempApiList.data.data,
     );
     const result = await createOrUpdateApiAuthority({
-      roleId: Number(roleId.value),
+      roleId: String(roleId.value),
       data: apiReqData,
     });
     if (result.code === 0) {
@@ -113,7 +113,7 @@ function convertApiTreeData(params: ApiInfo[]): DataNode[] {
       if (param.group === k) {
         apiTmp.children?.push({
           title: param.trans,
-          key: param.id as number,
+          key: param.id as string,
           disableCheckbox: param.isRequired,
         });
       }
@@ -146,7 +146,7 @@ function convertApiTreeData(params: ApiInfo[]): DataNode[] {
  *  @description: convert checked data into authorized data
  */
 function convertApiCheckedKeysToReq(
-  checked: number[],
+  checked: string[],
   data: ApiInfo[],
 ): ApiAuthorityInfo[] {
   // delete string keys
@@ -159,7 +159,8 @@ function convertApiCheckedKeysToReq(
 
   // sort data
   data.sort((a, b) => {
-    if (a.id !== undefined && b.id !== undefined) return a.id - b.id;
+    if (a.id !== undefined && b.id !== undefined)
+      return a.id.localeCompare(b.id);
     return 1;
   });
   pureDigit.sort((a, b) => {
@@ -188,13 +189,13 @@ function convertApiCheckedKeysToReq(
 function convertApiToCheckedKeys(
   checked: ApiAuthorityInfo[],
   data: ApiInfo[],
-): number[] {
+): string[] {
   const dataMap = new Map();
-  const authorityApis: number[] = [];
-  const requiredAPIs: number[] = [];
+  const authorityApis: string[] = [];
+  const requiredAPIs: string[] = [];
   data.forEach((value, _key) => {
     if (value.isRequired) {
-      requiredAPIs.push(value.id as number);
+      requiredAPIs.push(value.id as string);
     }
   });
 

@@ -20,11 +20,11 @@ export interface BaseResp {
 }
 
 export interface BaseIDReq {
-  id?: number;
+  id?: string;
 }
 
 export interface BaseIDsReq {
-  ids: number[];
+  ids: string[];
 }
 
 export interface BaseUUIDReq {

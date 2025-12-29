@@ -21,9 +21,9 @@ defineOptions({
 
 const treeMenuData = ref<DataNode[]>([]);
 
-const checkedKeys = ref();
-const expandedKeys = ref();
-const roleId = ref<number>();
+const checkedKeys = ref<string[]>([]);
+const expandedKeys = ref<string[]>([]);
+const roleId = ref<string>();
 
 const [Modal, modalApi] = useVbenModal({
   fullscreenButton: false,
@@ -31,10 +31,10 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.close();
   },
   onConfirm: async () => {
-    if (checkedKeys.value.checked !== undefined) {
+    if (checkedKeys.value && checkedKeys.value.length > 0) {
       const result = await createOrUpdateMenuAuthority({
-        roleId: roleId.value as number,
-        menuIds: checkedKeys.value.checked,
+        roleId: roleId.value as string,
+        menuIds: checkedKeys.value,
       });
       if (result.code === 0) {
         message.success($t('common.successful'));
@@ -43,15 +43,15 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.close();
   },
   onOpenChange(isOpen: boolean) {
-    roleId.value = isOpen ? modalApi.getData()?.roleId || {} : {};
+    roleId.value = isOpen ? modalApi.getData()?.roleId || '' : '';
     if (isOpen) {
-      getMenuData(roleId.value as number);
+      getMenuData(roleId.value as string);
     }
   },
   title: $t('sys.authority.menuAuthority'),
 });
 
-async function getMenuData(roleId: number) {
+async function getMenuData(roleId: string) {
   try {
     treeMenuData.value = [];
     const data = await getMenuList();
@@ -65,7 +65,9 @@ async function getMenuData(roleId: number) {
 
     const checkedData = await getMenuAuthority({ id: roleId });
     checkedKeys.value = checkedData.data.menuIds;
-    expandedKeys.value = data.data.data.map((val, _idx, _arr) => val.id);
+    expandedKeys.value = data.data.data.map(
+      (val, _idx, _arr) => val.id as string,
+    );
   } catch {
     // console.log(error);
   }
