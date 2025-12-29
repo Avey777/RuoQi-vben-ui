@@ -35,8 +35,19 @@ const [Modal, modalApi] = useVbenModal({
 
     const result = await createOrUpdateMenuAuthority({
       roleId: currentRoleId,
-      menuIds: checkedKeys.value || [], // 使用空数组作为默认值
+      menuIds: getMenuIdsArray(checkedKeys.value),
     });
+
+    function getMenuIdsArray(keys: any): string[] {
+      if (!keys) return [];
+      if (Array.isArray(keys)) {
+        return keys;
+      }
+      if (keys && typeof keys === 'object' && 'checked' in keys) {
+        return Array.isArray(keys.checked) ? keys.checked : [];
+      }
+      return [];
+    }
 
     if (result.code === 0) {
       message.success($t('common.successful'));

@@ -36,7 +36,7 @@ export interface ApiAuthorityInfo {
 
 export interface ApiAuthorityReq {
   roleId: string;
-  data: ApiAuthorityInfo[];
+  apiIds: ApiAuthorityInfo[];
 }
 
 export type ApiAuthorityResp = BaseListResp<ApiAuthorityInfo>;
