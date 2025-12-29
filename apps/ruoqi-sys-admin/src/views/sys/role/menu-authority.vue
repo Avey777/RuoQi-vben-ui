@@ -23,7 +23,7 @@ const treeMenuData = ref<DataNode[]>([]);
 
 const checkedKeys = ref<string[]>([]);
 const expandedKeys = ref<string[]>([]);
-const roleId = ref<string>();
+const roleId = ref<string>('');
 
 const [Modal, modalApi] = useVbenModal({
   fullscreenButton: false,
@@ -31,21 +31,25 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.close();
   },
   onConfirm: async () => {
-    if (checkedKeys.value && checkedKeys.value.length > 0) {
-      const result = await createOrUpdateMenuAuthority({
-        roleId: roleId.value as string,
-        menuIds: checkedKeys.value,
-      });
-      if (result.code === 0) {
-        message.success($t('common.successful'));
-      }
+    const currentRoleId = String(roleId.value || '');
+
+    const result = await createOrUpdateMenuAuthority({
+      roleId: currentRoleId,
+      menuIds: checkedKeys.value || [], // 使用空数组作为默认值
+    });
+
+    if (result.code === 0) {
+      message.success($t('common.successful'));
+    } else {
+      message.error(result.msg || $t('common.failed'));
     }
     modalApi.close();
   },
   onOpenChange(isOpen: boolean) {
-    roleId.value = isOpen ? modalApi.getData()?.roleId || '' : '';
-    if (isOpen) {
-      getMenuData(roleId.value as string);
+    const data = modalApi.getData();
+    roleId.value = isOpen ? String(data?.roleId || '') : '';
+    if (isOpen && roleId.value) {
+      getMenuData(roleId.value);
     }
   },
   title: $t('sys.authority.menuAuthority'),
@@ -64,12 +68,14 @@ async function getMenuData(roleId: string) {
     });
 
     const checkedData = await getMenuAuthority({ id: roleId });
-    checkedKeys.value = checkedData.data.menuIds;
-    expandedKeys.value = data.data.data.map(
-      (val, _idx, _arr) => val.id as string,
+    const menuIds = checkedData.data.menuIds || [];
+    checkedKeys.value = menuIds.map(String);
+    expandedKeys.value = data.data.data.map((val, _idx, _arr) =>
+      String(val.id),
     );
-  } catch {
-    // console.log(error);
+  } catch (error) {
+    console.error('Error in getMenuData:', error);
+    // 参考 ApiAuthorityModal，这里也静默处理错误
   }
 }
 
