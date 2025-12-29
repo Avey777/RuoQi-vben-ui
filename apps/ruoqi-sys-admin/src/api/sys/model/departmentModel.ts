@@ -4,7 +4,7 @@ import { type BaseListResp } from '../../model/baseModel';
  *  @description: Department info response
  */
 export interface DepartmentInfo {
-  id?: number;
+  id?: string;
   createdAt?: number;
   updatedAt?: number;
   trans?: string;
@@ -16,7 +16,7 @@ export interface DepartmentInfo {
   phone?: string;
   email?: string;
   remark?: string;
-  parentId?: number;
+  parentId?: string;
 }
 
 /**

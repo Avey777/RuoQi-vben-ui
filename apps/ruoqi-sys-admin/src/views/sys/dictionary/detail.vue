@@ -139,7 +139,7 @@ async function saveRowEvent(row: DictionaryDetailInfo) {
   await gridApi.grid?.clearEdit();
 
   const result =
-    row.id === 0
+    row.id === '00000000-0000-0000-0000-000000000000'
       ? await createDictionaryDetail(row)
       : await updateDictionaryDetail(row);
   if (result.code === 0) {
@@ -150,7 +150,7 @@ async function saveRowEvent(row: DictionaryDetailInfo) {
 
 function insertRowEvent() {
   const newRow: DictionaryDetailInfo = {
-    id: 0,
+    id: '00000000-0000-0000-0000-000000000000',
     createdAt: Date.now(),
     status: 1,
     dictionaryId: dictionaryId.value,

@@ -27,7 +27,7 @@ defineOptions({
 // ------------ department -------------------
 
 const treeData = ref();
-const selectedDepartmentId = ref();
+const selectedDepartmentId = ref<string>();
 
 async function fetchDepartmentData() {
   const deptData = await getDepartmentList({ page: 1, pageSize: 1000 });
@@ -125,7 +125,7 @@ const gridOptions: VxeGridProps<UserInfo> = {
                 popConfirm: {
                   title: $t('common.deleteConfirm'),
                   placement: 'left',
-                  confirm: batchDelete.bind(null, [row.id]),
+                  confirm: batchDelete.bind(null, [row.id as string]),
                 },
               },
             ] as ActionItem[],
@@ -145,7 +145,7 @@ const gridOptions: VxeGridProps<UserInfo> = {
           departmentId: selectedDepartmentId.value,
           ...formValues,
         });
-        return res.result;
+        return res.data;
       },
     },
   },
@@ -191,7 +191,7 @@ function handleBatchDelete() {
   });
 }
 
-async function batchDelete(ids: any[]) {
+async function batchDelete(ids: string[]) {
   const result = await deleteUser({
     ids,
   });
@@ -202,7 +202,7 @@ async function batchDelete(ids: any[]) {
 }
 
 async function handleForceLogout(record: any) {
-  const result = await logout(record.id);
+  const result = await logout(record.id as string);
   if (result.code === 0) {
     message.success($t('common.successful'));
   }

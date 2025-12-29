@@ -4,14 +4,14 @@ import { type BaseListResp } from '../../model/baseModel';
  *  @description: DictionaryDetail info response
  */
 export interface DictionaryDetailInfo {
-  id?: number;
+  id?: string;
   createdAt?: number;
   updatedAt?: number;
   status?: number;
   title?: string;
   key?: string;
   value?: string;
-  dictionaryId?: number;
+  dictionaryId?: string;
   sort?: number;
 }
 

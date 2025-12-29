@@ -4,7 +4,7 @@ import { type BaseListResp } from '../../model/baseModel';
  *  @description: Position info response
  */
 export interface PositionInfo {
-  id?: number;
+  id?: string;
   createdAt?: number;
   updatedAt?: number;
   status?: number;
