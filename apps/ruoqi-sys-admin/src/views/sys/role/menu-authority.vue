@@ -69,7 +69,7 @@ async function getMenuData(roleId: string) {
 
     const checkedData = await getMenuAuthority({ id: roleId });
     const menuIds = checkedData.data.menuIds || [];
-    checkedKeys.value = menuIds.map((id) => String(id));
+    checkedKeys.value = menuIds.map(String);
     expandedKeys.value = data.data.data.map((val, _idx, _arr) =>
       String(val.id),
     );
