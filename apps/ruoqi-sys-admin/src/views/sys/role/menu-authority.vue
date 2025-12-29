@@ -41,7 +41,7 @@ const [Modal, modalApi] = useVbenModal({
     if (result.code === 0) {
       message.success($t('common.successful'));
     } else {
-      message.error(result.message || $t('common.failed'));
+      message.error(result.msg || $t('common.failed'));
     }
     modalApi.close();
   },
