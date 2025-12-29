@@ -3,7 +3,7 @@
  *  @description:
  */
 
-import { type BaseListResp } from '../../model/baseModel';
+import type { BaseListResp } from '../../model/baseModel';
 
 export interface MenuAuthorityInfo {
   roleId: string;
