@@ -213,29 +213,22 @@ function convertApiTreeData(params: ApiInfo[]): DataNode[] {
 function extractApiIdsFromCheckedKeys(
   checkedKeys: string[],
   apiData: ApiInfo[],
-): ApiAuthorityInfo[] {
-  const apiInfos: ApiAuthorityInfo[] = [];
-  const apiDataMap = new Map<string, ApiInfo>();
+): string[] {
+  const apiIds: string[] = []; // 改为字符串数组
 
-  // 创建API ID到ApiInfo的映射
+  const validApiIds = new Set<string>();
   apiData.forEach((api) => {
     if (api.id) {
-      apiDataMap.set(api.id, api);
+      validApiIds.add(api.id);
     }
   });
 
-  // 过滤出有效的 API 并转换为 ApiAuthorityInfo
   checkedKeys.forEach((key) => {
-    const apiInfo = apiDataMap.get(key);
-    if (apiInfo && apiInfo.path && apiInfo.method) {
-      apiInfos.push({
-        path: apiInfo.path,
-        method: apiInfo.method,
-      });
+    if (validApiIds.has(key)) {
+      apiIds.push(key);
     }
   });
-
-  return apiInfos;
+  return apiIds;
 }
 
 /**
