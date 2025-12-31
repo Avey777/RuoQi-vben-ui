@@ -8,7 +8,7 @@ export interface ConfigurationInfo {
   createdAt?: number;
   updatedAt?: number;
   sort?: number;
-  state?: boolean;
+  status?: boolean;
   name?: string;
   key?: string;
   value?: string;
