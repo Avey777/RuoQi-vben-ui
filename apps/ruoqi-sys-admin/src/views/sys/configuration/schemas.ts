@@ -34,16 +34,16 @@ export const tableColumns: VxeGridProps = {
     },
     {
       title: $t('common.status'),
-      field: 'state',
+      field: 'status',
       slots: {
         default: (e) =>
           h(Switch, {
-            checked: e.row.state,
+            checked: e.row.status,
             onClick: () => {
-              const newStatus = !e.row.state;
-              updateConfiguration({ id: e.row.id, state: newStatus }).then(
+              const newStatus = !e.row.status;
+              updateConfiguration({ id: e.row.id, status: newStatus }).then(
                 () => {
-                  e.row.state = newStatus;
+                  e.row.status = newStatus;
                 },
               );
             },
@@ -130,7 +130,7 @@ export const dataFormSchemas: VbenFormProps = {
       defaultValue: 1,
     },
     {
-      fieldName: 'state',
+      fieldName: 'status',
       label: $t('common.status'),
       component: 'RadioButtonGroup',
       defaultValue: true,
